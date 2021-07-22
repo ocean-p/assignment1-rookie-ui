@@ -48,9 +48,6 @@ export default class AdminNavBar extends Component {
                                     <DropdownItem>
                                         <NavLink href="/accounts/disabled">Disabled Accounts</NavLink>
                                     </DropdownItem>
-                                    <DropdownItem>
-                                        <NavLink href="/">Search Accounts</NavLink>
-                                    </DropdownItem>
                                 </DropdownMenu>
                             </UncontrolledDropdown>
                             <UncontrolledDropdown nav inNavbar>
@@ -64,9 +61,6 @@ export default class AdminNavBar extends Component {
                                     <DropdownItem>
                                         <NavLink href="/categories/disabled">Disabled Categories</NavLink>
                                     </DropdownItem>
-                                    <DropdownItem>
-                                        <NavLink href="/">Search Categories</NavLink>
-                                    </DropdownItem>
                                 </DropdownMenu>
                             </UncontrolledDropdown>
                             <UncontrolledDropdown nav inNavbar>
@@ -78,10 +72,10 @@ export default class AdminNavBar extends Component {
                                         <NavLink href="/products">Available Products</NavLink>
                                     </DropdownItem>
                                     <DropdownItem>
-                                        <NavLink href="/">Disabled Products</NavLink>
+                                        <NavLink href="/products/disabled">Disabled Products</NavLink>
                                     </DropdownItem>
                                     <DropdownItem>
-                                        <NavLink href="/">Search Products</NavLink>
+                                        <NavLink href="/">...</NavLink>
                                     </DropdownItem>
                                 </DropdownMenu>
                             </UncontrolledDropdown>

@@ -23,7 +23,6 @@ export default class DisabledAccounts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    console.log(response)
                     this.setState({
                         accountList: response.data.accountDTOList
                     })
