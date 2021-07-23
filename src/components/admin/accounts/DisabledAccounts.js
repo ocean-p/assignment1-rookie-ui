@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { Table } from 'reactstrap';
 import axios from 'axios';
-import { Button } from 'reactstrap';
+import { Button, Table, Modal, ModalHeader, ModalBody, ModalFooter, Container, Row, Col } from 'reactstrap';
 
 export default class DisabledAccounts extends Component {
 
@@ -9,7 +8,10 @@ export default class DisabledAccounts extends Component {
         super(props);
         this.state = {
             accountList: [],
-            pageList: []
+            pageList: [],
+
+            modal: false,
+            username: ''
         };
     }
 
@@ -26,7 +28,7 @@ export default class DisabledAccounts extends Component {
                     this.setState({
                         accountList: response.data.accountDTOList
                     })
-                    this.handlePageList(response);    
+                    this.handlePageList(response);
                 }
             })
             .catch(err => {
@@ -39,7 +41,7 @@ export default class DisabledAccounts extends Component {
         for (let i = 0; i < response.data.totalPages; i++) {
             list.push(i + 1);
         }
-        if(list.length > 1){
+        if (list.length > 1) {
             this.setState({ pageList: list });
         }
     }
@@ -57,6 +59,56 @@ export default class DisabledAccounts extends Component {
             })
             .catch(err => {
                 alert("Fail to load data!");
+            })
+    }
+
+    toggle() {
+        this.setState({ modal: !this.state.modal })
+    }
+
+    toggleButton(usernameValue) {
+        this.setState({
+            modal: !this.state.modal,
+            username: usernameValue
+        })
+    }
+
+    handleRestore() {
+        axios.post(`http://localhost:8080/admin/account/restore/${this.state.username}`,
+            {},
+            {
+                headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+
+            })
+            .then(response => {
+                console.log(response);
+                if (response.status === 200) {
+                    alert(response.data);
+
+                    this.toggle();
+                    this.loadData();
+                    this.setState({ username: '' });
+                }
+            })
+            .catch(err => {
+                if (err.response) {
+                    if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
+                        alert("Account not found");
+                    }
+                    else if (err.response.data.message === 'ACCOUNT_NOT_BELONG_TO_CUSTOMER') {
+                        alert("Account not belong to customer");
+                    }
+                    else if (err.response.data.message === 'ACCOUNT_ACTIVE') {
+                        alert("Account already active");
+                    }
+                    else {
+                        alert("Error");
+                        console.log(err);
+                    }
+                }
+                else {
+                    alert("Fail to restore!");
+                }
             })
     }
 
@@ -90,13 +142,26 @@ export default class DisabledAccounts extends Component {
                                     <td>{account.createDate}</td>
                                     <td>{account.updateDate}</td>
                                     <td>
-                                        <Button color="success">Restore</Button>
+                                        <Button color="success" onClick={() => this.toggleButton(`${account.username}`)}>
+                                            Restore
+                                        </Button>
+
                                     </td>
                                 </tr>
                             )
                         })}
                     </tbody>
                 </Table>
+                <Modal isOpen={this.state.modal} toggle={() => this.toggle()}>
+                    <ModalHeader toggle={() => this.toggle()}>Notice</ModalHeader>
+                    <ModalBody>
+                        Are you sure to restore account: <b>{this.state.username}</b> ?
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="success" onClick={() => this.handleRestore()}>Restore</Button>
+                        <Button color="primary" onClick={() => this.toggle()}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>
                 {
                     this.state.pageList.map((page, index) => {
                         return (

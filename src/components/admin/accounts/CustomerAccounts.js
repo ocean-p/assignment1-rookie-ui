@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Button, Form, FormGroup, Input, Container, Row, Col, Table } from 'reactstrap';
+import {
+    Button, Form, FormGroup, Input, Container, Row, Col, Table,
+    Modal, ModalHeader, ModalBody, ModalFooter
+} from 'reactstrap';
+import AccountForm from './AccountForm';
 
 
 export default class CustomerAccounts extends Component {
@@ -12,7 +16,12 @@ export default class CustomerAccounts extends Component {
             pageList: [],
             searchValue: '',
             searchPageList: [],
-            isSearch: false
+            isSearch: false,
+
+            modal: false,
+            username: '',
+
+            modalUpdate: false
         };
     }
 
@@ -42,8 +51,11 @@ export default class CustomerAccounts extends Component {
         for (let i = 0; i < response.data.totalPages; i++) {
             list.push(i + 1);
         }
-        if(list.length > 1){
+        if (list.length > 1) {
             this.setState({ pageList: list });
+        }
+        else {
+            this.setState({ pageList: [] });
         }
     }
 
@@ -63,45 +75,45 @@ export default class CustomerAccounts extends Component {
             })
     }
 
-    handleFind(e){
+    handleFind(e) {
         e.preventDefault();
-        this.setState({searchValue: e.target.searchvalue.value})
+        this.setState({ searchValue: e.target.searchvalue.value })
         axios.get(`http://localhost:8080/admin/account?value=${e.target.searchvalue.value}&page=1`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
         })
-        .then(response => {
-            if(response.status === 200){
-                this.setState({
-                    accountList: response.data.accountDTOList,
-                    isSearch: true
-                }, () => {
-                    if(this.state.accountList.length === 0){
-                        alert("No results");
-                    }
-                })
-                this.handleSearchPageList(response);
-            }
-        })
-        .catch(err =>{
-            if(err.response.data.message){
-                if(err.response.data.message === "SEARCH_VALUE_IS_EMPTY"){
-                    alert("Not yet input anything!")
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        accountList: response.data.accountDTOList,
+                        isSearch: true
+                    }, () => {
+                        if (this.state.accountList.length === 0) {
+                            alert("No results");
+                        }
+                    })
+                    this.handleSearchPageList(response);
                 }
-                else if(err.response.data.message === "PAGE_LESS_THAN_ONE"){
-                    alert("Number of page must be from 1!");
-                } 
-            }
-            else{
-                alert("Fail to load data!")
-            }
-            this.setState({
-                accountList: [],
-                pageList: [],
-                searchValue: '',
-                searchPageList: [],
-                isSearch: false
             })
-        })
+            .catch(err => {
+                if (err.response) {
+                    if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
+                        alert("Not yet input anything!")
+                    }
+                    else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
+                        alert("Number of page must be from 1!");
+                    }
+                }
+                else {
+                    alert("Fail to load data!")
+                }
+                this.setState({
+                    accountList: [],
+                    pageList: [],
+                    searchValue: '',
+                    searchPageList: [],
+                    isSearch: false
+                })
+            })
     }
 
     handleSearchPageList(response) {
@@ -129,19 +141,19 @@ export default class CustomerAccounts extends Component {
                 }
             })
             .catch(err => {
-                if(err.response.data.message){
-                    if(err.response.data.message === "SEARCH_VALUE_IS_EMPTY"){
+                if (err.response) {
+                    if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
                         alert("Not yet input anything!")
                     }
-                    else if(err.response.data.message === "PAGE_LESS_THAN_ONE"){
+                    else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
                         alert("Number of page must be from 1!");
-                    } 
+                    }
                 }
-                else{
+                else {
                     alert("Fail to load data!")
                 }
             })
-    } 
+    }
 
     refresh() {
         this.loadData();
@@ -151,12 +163,72 @@ export default class CustomerAccounts extends Component {
         })
     }
 
+    toggle() {
+        this.setState({ modal: !this.state.modal })
+    }
+
+    toggleUpdate() {
+        this.setState({ modalUpdate: !this.state.modalUpdate })
+    }
+
+    toggleButton(usernameValue) {
+        this.setState({
+            modal: !this.state.modal,
+            username: usernameValue
+        })
+    }
+
+    toggleButtonUpdate(usernameValue) {
+        this.setState({
+            modalUpdate: !this.state.modalUpdate,
+            username: usernameValue
+        })
+    }
+
+    handleDelete() {
+        axios.delete(`http://localhost:8080/admin/account/${this.state.username}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    alert(response.data);
+                    this.toggle();
+                    this.setState({ username: '' })
+                    if (this.state.isSearch === true) {
+                        this.changeSearchPage(1);
+                    }
+                    else {
+                        this.loadData();
+                    }
+                }
+            })
+            .catch(err => {
+                if (err.response) {
+                    if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
+                        alert("Account not found");
+                    }
+                    else if (err.response.data.message === 'ACCOUNT_NOT_BELONG_TO_CUSTOMER') {
+                        alert("Account not belong to customer");
+                    }
+                    else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
+                        alert("Account is disabled");
+                    }
+                    else {
+                        alert("Error");
+                    }
+                }
+                else {
+                    alert("Fail to delete!");
+                }
+            })
+    }
+
     render() {
         return (
             <div>
                 <h2 style={{ textAlign: 'center' }}>
                     Customer Accounts
-                    <br/>
+                    <br />
                     <Button color="warning" onClick={() => this.refresh()}>Refresh</Button>
                 </h2>
                 <br />
@@ -180,7 +252,7 @@ export default class CustomerAccounts extends Component {
                         Search results: {this.state.searchValue}
                     </p>
                 }
-                <br/>
+                <br />
                 <Table hover>
                     <thead>
                         <tr>
@@ -204,16 +276,42 @@ export default class CustomerAccounts extends Component {
                                     <td>{account.createDate}</td>
                                     <td>{account.updateDate}</td>
                                     <td>
-                                        <Button color="primary">Update</Button>
+                                        <Button color="primary" onClick={() => this.toggleButtonUpdate(`${account.username}`)}>
+                                            Update
+                                        </Button>
                                     </td>
                                     <td>
-                                        <Button color="danger">Delete</Button>
+                                        <Button color="danger" onClick={() => this.toggleButton(`${account.username}`)}>
+                                            Delete
+                                        </Button>
+
                                     </td>
                                 </tr>
                             )
                         })}
                     </tbody>
                 </Table>
+                <Modal isOpen={this.state.modal} toggle={() => this.toggle()}>
+                    <ModalHeader toggle={() => this.toggle()}>Notice</ModalHeader>
+                    <ModalBody>
+                        Are you sure to delete account: <b>{this.state.username}</b> ?
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" onClick={() => this.handleDelete()}>Delete</Button>
+                        <Button color="primary" onClick={() => this.toggle()}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>
+                <Modal size="lg" isOpen={this.state.modalUpdate} toggle={() => this.toggleUpdate()}>
+                    <ModalHeader toggle={() => this.toggleUpdate()}>Update account: <b>{this.state.username}</b></ModalHeader>
+                    <ModalBody>
+                        <AccountForm username={this.state.username} />
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={() => this.toggleUpdate()}>
+                            Cancel
+                        </Button>
+                    </ModalFooter>
+                </Modal>
                 {this.state.isSearch === false &&
                     this.state.pageList.map((page, index) => {
                         return (

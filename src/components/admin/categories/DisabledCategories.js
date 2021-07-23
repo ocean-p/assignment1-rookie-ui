@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { Table } from 'reactstrap';
 import axios from 'axios';
-import { Button } from 'reactstrap';
+import { Button, Table, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 
 export default class DisabledCategories extends Component {
@@ -10,7 +9,11 @@ export default class DisabledCategories extends Component {
         super(props);
         this.state = {
             categoryList: [],
-            pageList: []
+            pageList: [],
+
+            modal: false,
+            categoryName: '',
+            categoryId: ''
         };
     }
 
@@ -23,7 +26,7 @@ export default class DisabledCategories extends Component {
                     this.setState({
                         categoryList: response.data.categories
                     })
-                    this.handlePageList(response);    
+                    this.handlePageList(response);
                 }
             })
             .catch(err => {
@@ -40,7 +43,7 @@ export default class DisabledCategories extends Component {
         for (let i = 0; i < response.data.totalPages; i++) {
             list.push(i + 1);
         }
-        if(list.length > 1){
+        if (list.length > 1) {
             this.setState({ pageList: list });
         }
     }
@@ -61,6 +64,49 @@ export default class DisabledCategories extends Component {
             })
     }
 
+    toggle() {
+        this.setState({ modal: !this.state.modal })
+    }
+
+    toggleButton(categoryIdValue, categoryNameValue) {
+        this.setState({
+            modal: !this.state.modal,
+            categoryName: categoryNameValue,
+            categoryId: categoryIdValue
+        })
+    }
+
+    handleRestore() {
+        axios.post(`http://localhost:8080/admin/category/restore/${this.state.categoryId}`,
+            {},
+            {
+                headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+            }
+        ).then(response => {
+            if (response.status === 200) {
+                alert(response.data);
+                this.toggle();
+                this.loadData();
+                this.setState({ categoryId: '', categoryName: '' });
+            }
+        })
+            .catch(err => {
+                if (err.response) {
+                    if (err.response.data.message === 'CATEGORY_NOT_FOUND') {
+                        alert("Category not found");
+                    }
+                    else if (err.response.data.message === 'CATEGORY_ACTIVE') {
+                        alert("Category already active!");
+                    }
+                    else {
+                        alert("Error");
+                    }
+                }
+                else {
+                    alert("Fail to delete!");
+                }
+            })
+    }
 
     render() {
         return (
@@ -68,7 +114,7 @@ export default class DisabledCategories extends Component {
                 <h2 style={{ textAlign: 'center' }}>
                     Disabled Categories
                 </h2>
-                <br/>
+                <br />
                 <Table hover>
                     <thead>
                         <tr>
@@ -90,7 +136,9 @@ export default class DisabledCategories extends Component {
                                     <td>{category.createDate}</td>
                                     <td>{category.updateDate}</td>
                                     <td>
-                                        <Button color="success">Restore</Button>
+                                        <Button color="success" onClick={() => this.toggleButton(`${category.id}`, `${category.name}`)}>
+                                            Restore
+                                        </Button>
                                     </td>
                                 </tr>
                             )
@@ -106,6 +154,17 @@ export default class DisabledCategories extends Component {
                         )
                     })
                 }
+                <Modal isOpen={this.state.modal} toggle={() => this.toggle()}>
+                    <ModalHeader toggle={() => this.toggle()}>Notice</ModalHeader>
+                    <ModalBody>
+                        Sure to restore Category: <b>{this.state.categoryName}</b> -
+                        id: <b>{this.state.categoryId}</b> ?
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="success" onClick={() => this.handleRestore()}>Restore</Button>
+                        <Button color="primary" onClick={() => this.toggle()}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         )
     }

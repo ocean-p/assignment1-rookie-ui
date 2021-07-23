@@ -48,6 +48,9 @@ export default class AdminNavBar extends Component {
                                     <DropdownItem>
                                         <NavLink href="/accounts/disabled">Disabled Accounts</NavLink>
                                     </DropdownItem>
+                                    <DropdownItem>
+                                        <NavLink href="/accounts/add">Add Account</NavLink>
+                                    </DropdownItem>
                                 </DropdownMenu>
                             </UncontrolledDropdown>
                             <UncontrolledDropdown nav inNavbar>
@@ -60,6 +63,9 @@ export default class AdminNavBar extends Component {
                                     </DropdownItem>
                                     <DropdownItem>
                                         <NavLink href="/categories/disabled">Disabled Categories</NavLink>
+                                    </DropdownItem>
+                                    <DropdownItem>
+                                        <NavLink href="/categories/add">Add Category</NavLink>
                                     </DropdownItem>
                                 </DropdownMenu>
                             </UncontrolledDropdown>
@@ -75,7 +81,7 @@ export default class AdminNavBar extends Component {
                                         <NavLink href="/products/disabled">Disabled Products</NavLink>
                                     </DropdownItem>
                                     <DropdownItem>
-                                        <NavLink href="/">...</NavLink>
+                                        <NavLink href="/products/add">Add Product</NavLink>
                                     </DropdownItem>
                                 </DropdownMenu>
                             </UncontrolledDropdown>

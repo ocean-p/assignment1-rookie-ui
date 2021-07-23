@@ -3,7 +3,8 @@ import {
     Card, Button, CardImg, CardTitle, CardText,
     CardSubtitle, CardBody, Container, Row, Col,
     Form, FormGroup, Input, UncontrolledButtonDropdown,
-    DropdownMenu, DropdownItem, DropdownToggle
+    DropdownMenu, DropdownItem, DropdownToggle,
+    Modal, ModalHeader, ModalBody, ModalFooter
 } from 'reactstrap';
 import axios from 'axios';
 
@@ -15,15 +16,19 @@ export default class AvailableProducts extends Component {
             productList: [],
             categoryList: [],
             pageList: [],
-            
+
             searchValue: '',
             searchPageList: [],
             isSearch: false,
 
-            categoryName:'',
+            categoryName: '',
             categoryId: '',
             searchCategoryPageList: [],
-            isCategory: false
+            isCategory: false,
+
+            modal: false,
+            productId: '',
+            productName: ''
         };
     }
 
@@ -48,14 +53,14 @@ export default class AvailableProducts extends Component {
         axios.get('http://localhost:8080/admin/category/list', {
             headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
         })
-        .then(response => {
-            if(response.status === 200){
-                this.setState({categoryList: response.data})
-            }
-        })
-        .catch(err => {
-            console.log(err);
-        })
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({ categoryList: response.data })
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
     }
 
     componentDidMount() {
@@ -70,6 +75,9 @@ export default class AvailableProducts extends Component {
         }
         if (list.length > 1) {
             this.setState({ pageList: list });
+        }
+        else {
+            this.setState({ pageList: [] });
         }
     }
 
@@ -111,7 +119,7 @@ export default class AvailableProducts extends Component {
                 }
             })
             .catch(err => {
-                if (err.response.data.message) {
+                if (err.response) {
                     if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
                         alert("Not yet input anything!")
                     }
@@ -158,7 +166,7 @@ export default class AvailableProducts extends Component {
                 }
             })
             .catch(err => {
-                if (err.response.data.message) {
+                if (err.response) {
                     if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
                         alert("Not yet input anything!")
                     }
@@ -179,7 +187,7 @@ export default class AvailableProducts extends Component {
             searchPageList: [],
             isSearch: false,
 
-            categoryName:'',
+            categoryName: '',
             categoryId: '',
             searchCategoryPageList: [],
             isCategory: false
@@ -200,70 +208,124 @@ export default class AvailableProducts extends Component {
     }
 
     searchByCategory(id, name) {
-        this.setState({categoryName: name, categoryId: id});
+        this.setState({ categoryName: name, categoryId: id });
         axios.get(`http://localhost:8080/admin/product/category?id=${id}&page=1`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
         })
-        .then(response => {
-            if (response.status === 200) {
-                this.setState({
-                    productList: response.data.productList, 
-                    isCategory: true,
-                    isSearch: false
-                }, () => {
-                    if(this.state.productList.length === 0) {
-                        alert("No results");
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        productList: response.data.productList,
+                        isCategory: true,
+                        isSearch: false
+                    }, () => {
+                        if (this.state.productList.length === 0) {
+                            alert("No results");
+                        }
+                    })
+                    this.handleSearchByCategoryPageList(response);
+                }
+            })
+            .catch(err => {
+                if (err.response != null) {
+                    if (err.response.data.message === "CATEGORY_NOT_FOUND") {
+                        alert("Category not found");
                     }
-                })
-                this.handleSearchByCategoryPageList(response);
-            }
-        })
-        .catch(err => {
-            if(err.response !== null){
-                if(err.response.data.message === "CATEGORY_NOT_FOUND"){
-                    alert("Category not found");
+                    else if (err.response.data.message === "CATEGORY_IS_DISABLED") {
+                        alert("Category was deleted");
+                    }
+                    else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
+                        alert("Number of page must be from 1!");
+                    }
                 }
-                else if(err.response.data.message === "CATEGORY_IS_DISABLED"){
-                    alert("Category was deleted");
+                else {
+                    alert("Fail to load data!")
                 }
-                else if(err.response.data.message === "PAGE_LESS_THAN_ONE"){
-                    alert("Number of page must be from 1!");
-                }
-            }
-            else{
-                alert("Fail to load data!")
-            }
-        })
+            })
     }
 
     changeSearchByCategoryPage(page) {
         axios.get(`http://localhost:8080/admin/product/category?id=${this.state.categoryId}&page=${page}`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
         })
-        .then(response => {
-            if (response.status === 200) {
-                this.setState({
-                    productList: response.data.productList 
-                })
-                
-            }
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        productList: response.data.productList
+                    })
+
+                }
+            })
+            .catch(err => {
+                if (err.response != null) {
+                    if (err.response.data.message === "CATEGORY_NOT_FOUND") {
+                        alert("Category not found");
+                    }
+                    else if (err.response.data.message === "CATEGORY_IS_DISABLED") {
+                        alert("Category was deleted");
+                    }
+                    else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
+                        alert("Number of page must be from 1!");
+                    }
+                }
+                else {
+                    alert("Fail to load data!")
+                }
+            })
+    }
+
+    toggle() {
+        this.setState({ modal: !this.state.modal })
+    }
+
+    toggleButton(productIdValue, productNameValue) {
+        this.setState({
+            modal: !this.state.modal,
+            productName: productNameValue,
+            productId: productIdValue
         })
-        .catch(err => {
-            if(err.response !== null){
-                if(err.response.data.message === "CATEGORY_NOT_FOUND"){
-                    alert("Category not found");
-                }
-                else if(err.response.data.message === "CATEGORY_IS_DISABLED"){
-                    alert("Category was deleted");
-                }
-                else if(err.response.data.message === "PAGE_LESS_THAN_ONE"){
-                    alert("Number of page must be from 1!");
-                }
-            }
-            else{
-                alert("Fail to load data!")
-            }
+    }
+
+    handleDelete() {
+        axios.delete(`http://localhost:8080/admin/product/${this.state.productId}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
         })
+            .then(response => {
+                if (response.status === 200) {
+                    alert(response.data);
+                    this.toggle();
+                    // this.refresh();
+                    this.setState({
+                        productId: '',
+                        productName: ''
+                    })
+                    if (this.state.isSearch === true) {
+                        this.changeSearchPage(1);
+                    }
+                    else if (this.state.isCategory === true) {
+                        this.changeSearchByCategoryPage(1);
+                    }
+                    else {
+                        this.loadData();
+                    }
+                }
+            })
+            .catch(err => {
+                if (err.response) {
+                    if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
+                        alert("Product not found");
+                    }
+                    else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
+                        alert("Product is disabled");
+                    }
+                    else {
+                        alert("Error");
+                    }
+                }
+                else {
+                    alert("Fail to delete!");
+                }
+            })
     }
 
     render() {
@@ -297,14 +359,14 @@ export default class AvailableProducts extends Component {
                         </DropdownToggle>
                         <DropdownMenu>
                             {this.state.categoryList.map((category, index) => {
-                                return(
-                                    <DropdownItem key = {index} 
+                                return (
+                                    <DropdownItem key={index}
                                         onClick={() => this.searchByCategory(`${category.id}`, `${category.name}`)}>
                                         {category.name}
                                     </DropdownItem>
                                 )
                             })}
-                            
+
                         </DropdownMenu>
                     </UncontrolledButtonDropdown>
                 </Container>
@@ -360,13 +422,17 @@ export default class AvailableProducts extends Component {
                                             alt="Card image cap" />
                                         <CardBody>
                                             <CardTitle tag="h5">{product.name} / {product.price}$</CardTitle>
-                                            <CardSubtitle tag="h6" className="mb-2 text-muted">{product.averageRate}/10 star</CardSubtitle>
+                                            <CardSubtitle tag="h6" className="mb-2 text-muted">Code: {product.id} -- {product.averageRate}/10 star</CardSubtitle>
                                             <CardText>Quantity: {product.quantity}</CardText>
                                             <CardText>Description: {product.description}</CardText>
                                             <CardText>Update-Date: {product.updateDate}</CardText>
                                             <CardText>Create-Date: {product.createDate}</CardText>
                                             <Button color="primary">Update</Button>
-                                            <Button color="danger">Delete</Button>
+
+                                            <Button color="danger" onClick={() => this.toggleButton(`${product.id}`, `${product.name}`)}>
+                                                Delete
+                                            </Button>
+
                                         </CardBody>
                                     </Card>
                                 </Col>
@@ -374,7 +440,17 @@ export default class AvailableProducts extends Component {
                         })}
                     </Row>
                 </Container>
-
+                <Modal isOpen={this.state.modal} toggle={() => this.toggle()}>
+                    <ModalHeader toggle={() => this.toggle()}>Notice</ModalHeader>
+                    <ModalBody>
+                        Sure to delete product: <b>{this.state.productName}</b> -
+                        id: <b>{this.state.productId}</b> ?
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" onClick={() => this.handleDelete()}>Delete</Button>
+                        <Button color="primary" onClick={() => this.toggle()}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         )
     }

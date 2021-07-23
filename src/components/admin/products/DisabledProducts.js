@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import {
     Card, Button, CardImg, CardTitle, CardText,
-    CardSubtitle, CardBody, Container, Row, Col
+    CardSubtitle, CardBody, Container, Row, Col,
+    Modal, ModalHeader, ModalBody, ModalFooter
 } from 'reactstrap';
 import axios from 'axios';
 
@@ -11,7 +12,11 @@ export default class DisabledProducts extends Component {
         super(props);
         this.state = {
             productList: [],
-            pageList: []
+            pageList: [],
+
+            modal: false,
+            productId: '',
+            productName: ''
         };
     }
 
@@ -44,6 +49,9 @@ export default class DisabledProducts extends Component {
         if (list.length > 1) {
             this.setState({ pageList: list });
         }
+        else {
+            this.setState({ pageList: [] });
+        }
     }
 
     changePage(page) {
@@ -59,6 +67,54 @@ export default class DisabledProducts extends Component {
             })
             .catch(err => {
                 alert("Fail to load data!");
+            })
+    }
+
+    toggle() {
+        this.setState({ modal: !this.state.modal })
+    }
+
+    toggleButton(productIdValue, productNameValue) {
+        this.setState({
+            modal: !this.state.modal,
+            productName: productNameValue,
+            productId: productIdValue
+        })
+    }
+
+    handleRestore() {
+        axios.post(`http://localhost:8080/admin/product/restore/${this.state.productId}`,
+            {},
+            {
+                headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+            }
+        )
+            .then(response => {
+                if (response.status === 200) {
+                    alert(response.data);
+                    this.toggle();
+                    this.loadData();
+                    this.setState({
+                        productId: '',
+                        productName: ''
+                    })
+                }
+            })
+            .catch(err => {
+                if (err.response) {
+                    if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
+                        alert("Product not found");
+                    }
+                    else if (err.response.data.message === 'PRODUCT_ACTIVE') {
+                        alert("Product already active");
+                    }
+                    else {
+                        alert("Error");
+                    }
+                }
+                else {
+                    alert("Fail to restore!");
+                }
             })
     }
 
@@ -88,22 +144,37 @@ export default class DisabledProducts extends Component {
                             return (
                                 <Col key={index} className="mb-4">
                                     <Card>
-                                        <CardImg top width="50%" src="https://slyclothing.vn/wp-content/uploads/2021/01/jacket-winter_3.jpg" 
+                                        <CardImg top width="50%" src="https://slyclothing.vn/wp-content/uploads/2021/01/jacket-winter_3.jpg"
                                             alt="Card image cap" />
                                         <CardBody>
                                             <CardTitle tag="h5">{product.name} - {product.price}$</CardTitle>
-                                            <CardSubtitle tag="h6" className="mb-2 text-muted">{product.averageRate}/10 star</CardSubtitle> 
+                                            <CardSubtitle tag="h6" className="mb-2 text-muted">Code: {product.id} -- {product.averageRate}/10 star</CardSubtitle>
                                             <CardText>Quantity: {product.quantity}</CardText>
                                             <CardText>Description: {product.description}</CardText>
                                             <CardText>Update-Date: {product.updateDate}</CardText>
                                             <CardText>Create-Date: {product.createDate}</CardText>
-                                            <Button color="success">Restore</Button>
+
+                                            <Button color="success" onClick={() => this.toggleButton(`${product.id}`, `${product.name}`)}>
+                                                Restore
+                                            </Button>
+
                                         </CardBody>
                                     </Card>
                                 </Col>
                             )
                         })}
                     </Row>
+                    <Modal isOpen={this.state.modal} toggle={() => this.toggle()}>
+                        <ModalHeader toggle={() => this.toggle()}>Notice</ModalHeader>
+                        <ModalBody>
+                            Sure to restore product: <b>{this.state.productName}</b> -
+                            id: <b>{this.state.productId}</b> ?
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="success" onClick={() => this.handleRestore()}>Restore</Button>
+                            <Button color="primary" onClick={() => this.toggle()}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
                 </Container>
             </div>
         )

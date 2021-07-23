@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Button, Form, FormGroup, Input, Container, Row, Col, Table } from 'reactstrap';
+import {
+    Button, Form, FormGroup, Input, Container, Row, Col, Table,
+    Modal, ModalHeader, ModalBody, ModalFooter
+} from 'reactstrap';
 
 export default class AvailableCategories extends Component {
 
@@ -11,7 +14,11 @@ export default class AvailableCategories extends Component {
             pageList: [],
             searchValue: '',
             searchPageList: [],
-            isSearch: false
+            isSearch: false,
+
+            modal: false,
+            categoryName: '',
+            categoryId: ''
         };
     }
 
@@ -43,6 +50,9 @@ export default class AvailableCategories extends Component {
         }
         if (list.length > 1) {
             this.setState({ pageList: list });
+        }
+        else {
+            this.setState({ pageList: [] });
         }
     }
 
@@ -82,7 +92,7 @@ export default class AvailableCategories extends Component {
                 }
             })
             .catch(err => {
-                if (err.response.data.message) {
+                if (err.response) {
                     if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
                         alert("Not yet input anything!")
                     }
@@ -128,7 +138,7 @@ export default class AvailableCategories extends Component {
                 }
             })
             .catch(err => {
-                if (err.response.data.message) {
+                if (err.response) {
                     if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
                         alert("Not yet input anything!")
                     }
@@ -148,6 +158,53 @@ export default class AvailableCategories extends Component {
             searchValue: '',
             isSearch: false,
         })
+    }
+
+    toggle() {
+        this.setState({ modal: !this.state.modal })
+    }
+
+    toggleButton(categoryIdValue, categoryNameValue) {
+        this.setState({
+            modal: !this.state.modal,
+            categoryName: categoryNameValue,
+            categoryId: categoryIdValue
+        })
+    }
+
+    handleDelete() {
+        axios.delete(`http://localhost:8080/admin/category/${this.state.categoryId}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+        })
+            .then(response => {
+                if (response.status === 200) {
+                    alert(response.data);
+                    this.toggle();
+                    this.setState({ categoryId: '', categoryName: '' });
+                    if (this.state.isSearch === true) {
+                        this.changeSearchPage(1);
+                    }
+                    else {
+                        this.loadData();
+                    }
+                }
+            })
+            .catch(err => {
+                if (err.response) {
+                    if (err.response.data.message === 'CATEGORY_NOT_FOUND') {
+                        alert("Category not found");
+                    }
+                    else if (err.response.data.message === 'CATEGORY_IS_DISABLED') {
+                        alert("Category is disabled");
+                    }
+                    else {
+                        alert("Error");
+                    }
+                }
+                else {
+                    alert("Fail to delete!");
+                }
+            })
     }
 
     render() {
@@ -204,7 +261,9 @@ export default class AvailableCategories extends Component {
                                         <Button color="primary">Update</Button>
                                     </td>
                                     <td>
-                                        <Button color="danger">Delete</Button>
+                                        <Button color="danger" onClick={() => this.toggleButton(`${category.id}`, `${category.name}`)}>
+                                            Delete
+                                        </Button>
                                     </td>
                                 </tr>
                             )
@@ -229,6 +288,17 @@ export default class AvailableCategories extends Component {
                         )
                     })
                 }
+                <Modal isOpen={this.state.modal} toggle={() => this.toggle()}>
+                    <ModalHeader toggle={() => this.toggle()}>Notice</ModalHeader>
+                    <ModalBody>
+                        Sure to delete Category: <b>{this.state.categoryName}</b> -
+                        id: <b>{this.state.categoryId}</b> ?
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" onClick={() => this.handleDelete()}>Delete</Button>
+                        <Button color="primary" onClick={() => this.toggle()}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         )
     }
