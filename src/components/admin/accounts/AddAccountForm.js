@@ -1,45 +1,43 @@
 import React, { Component } from 'react';
-import { Container, Row, Col, Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import { Container, Row, Col, Button, Form, Label, Input } from 'reactstrap';
 import axios from 'axios';
 
-export default class AccountForm extends Component {
+export default class AddAccountForm extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            fullname: '',
-            phone: '',
-            address: ''
+            
         };
     }
 
-    componentDidMount() {
-        this.loadData();
-    }
-
-    loadData() {
-        axios.get(`http://localhost:8080/admin/account/${this.props.username}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
-        })
+    handleAdd(e) {
+        e.preventDefault();
+        axios.post('http://localhost:8080/admin/account',
+            {
+                username: e.target.username.value,
+                password: e.target.password.value,
+                fullName: e.target.fullname.value,
+                phone: e.target.phone.value,
+                address: e.target.address.value,
+                role: e.target.role.value,
+            },
+            {
+                headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` } 
+            }
+        )
         .then(response => {
             if(response.status === 200){
-                this.setState({ 
-                    fullname: response.data.fullName,
-                    phone: response.data.phone,
-                    address: response.data.address,
-                })
+                alert("Success to create!");
             }
         })
         .catch(err => {
             if(err.response){
-                if(err.response.data.message === 'ACCOUNT_NOT_FOUND'){
-                    alert("Account not found");
+                if(err.response.data.message === 'USERNAME_IS_EMPTY'){
+                    alert("Username is empty");
                 }
-                else if(err.response.data.message === 'ACCOUNT_NOT_BELONG_TO_CUSTOMER'){
-                    alert("Account not belong to customer");
-                }
-                else if(err.response.data.message === 'ACCOUNT_IS_DISABLED'){
-                    alert("Account is disabled");
+                else if(err.response.data.message === 'USERNAME_ALREADY_TAKEN'){
+                    alert("Username already taken");
                 }
                 else if(err.response.data.message === 'PASSWORD_NOT_CORRECT_FORMAT'){
                     alert("Password - Max:20, Min:6");
@@ -61,68 +59,66 @@ export default class AccountForm extends Component {
                 }
             }
             else{
-                alert("Fail to load data!");
+                alert("Fail to Create!");
             }
         })
-    }
-
-    handleChange(e, key) {
-        this.setState({ [key]: e.target.value });
-    }
-
-    test(e) {
-        e.preventDefault();
-        console.log("password ", e.target.password.value);
-        console.log("fullname ", e.target.fullname.value);
-        console.log("phone ", e.target.phone.value);
-        console.log("address ", e.target.address.value);
-        console.log("role ", e.target.role.value);
     }
 
     render() {
         return (
             <div>
-                <Form onSubmit={(e) => this.test(e)}>
+                <h2 style={{marginLeft: '50px', marginTop: '20px'}}>
+                    Add Account Form
+                </h2>
+                <br/>
+                <Form onSubmit={(e) => this.handleAdd(e)}>
                     <Container>
-                        <Row xs="3" className="mb-4">
+                        <Row xs="4" className="mb-4">
+                            <Col>
+                                <Label for="username">Username</Label>
+                            </Col>
+                            <Col>
+                                <Input type="text" name="username" id="usernamefield"
+                                    placeholder="username"/>
+                            </Col>
+                        </Row>
+                        <Row xs="4" className="mb-4">
                             <Col>
                                 <Label for="password">Password</Label>
                             </Col>
                             <Col>
-                                <Input type="password" name="password" id="passwordfield"/>
+                                <Input type="password" name="password" id="passwordfield"
+                                    placeholder="password"/>
                             </Col>
                         </Row>
-                        <Row xs="3" className="mb-4">
+                        <Row xs="4" className="mb-4">
                             <Col>
                                 <Label for="fullname">Fullname</Label>
                             </Col>
                             <Col>
                                 <Input type="text" name="fullname" id="fullnamefield"
-                                    value={this.state.fullname} 
-                                    onChange={(e) => this.handleChange(e, "fullname")}/>
+                                    placeholder="full-name"/>
                             </Col>
                         </Row>
-                        <Row xs="3" className="mb-4">
+                        <Row xs="4" className="mb-4">
                             <Col>
                                 <Label for="phone">Phone</Label>
                             </Col>
                             <Col>
                                 <Input type="number" name="phone" id="phonefield"
-                                    value={this.state.phone} 
-                                    onChange={(e) => this.handleChange(e, "phone")}/>
+                                    placeholder="phone"/>   
                             </Col>
                         </Row>
-                        <Row xs="3" className="mb-4">
+                        <Row xs="4" className="mb-4">
                             <Col>
                                 <Label for="address">Address</Label>
                             </Col>
                             <Col>
                                 <Input type="text" name="address" id="addressfield"
-                                    value={this.state.address} 
-                                    onChange={(e) => this.handleChange(e, "address")}/>
+                                    placeholder="address"/>    
                             </Col>
                         </Row>
-                        <Row xs="3" className="mb-4">
+                        <Row xs="4" className="mb-4">
                             <Col>
                                 <Label for="role">Role</Label>
                             </Col>
@@ -133,7 +129,7 @@ export default class AccountForm extends Component {
                                 </select>
                             </Col>
                         </Row>
-                        <Button>Update</Button>
+                        <Button color="primary">Create Account</Button>
                     </Container>
                 </Form>
             </div>

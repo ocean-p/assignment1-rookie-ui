@@ -4,7 +4,7 @@ import {
     Button, Form, FormGroup, Input, Container, Row, Col, Table,
     Modal, ModalHeader, ModalBody, ModalFooter
 } from 'reactstrap';
-import AccountForm from './AccountForm';
+import UpdateAccountForm from './UpdateAccountForm';
 
 
 export default class CustomerAccounts extends Component {
@@ -223,6 +223,17 @@ export default class CustomerAccounts extends Component {
             })
     }
 
+    handleUpdate = () => {
+        this.toggleUpdate();
+        this.setState({ username: '' })
+        if (this.state.isSearch === true) {
+            this.changeSearchPage(1);
+        }
+        else {
+            this.loadData();
+        }
+    }
+
     render() {
         return (
             <div>
@@ -304,7 +315,7 @@ export default class CustomerAccounts extends Component {
                 <Modal size="lg" isOpen={this.state.modalUpdate} toggle={() => this.toggleUpdate()}>
                     <ModalHeader toggle={() => this.toggleUpdate()}>Update account: <b>{this.state.username}</b></ModalHeader>
                     <ModalBody>
-                        <AccountForm username={this.state.username} />
+                        <UpdateAccountForm username={this.state.username} onUpdate={this.handleUpdate}/>
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" onClick={() => this.toggleUpdate()}>

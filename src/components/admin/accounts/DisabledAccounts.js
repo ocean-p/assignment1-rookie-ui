@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Button, Table, Modal, ModalHeader, ModalBody, ModalFooter, Container, Row, Col } from 'reactstrap';
+import { Button, Table, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 
 export default class DisabledAccounts extends Component {
 
@@ -81,7 +81,6 @@ export default class DisabledAccounts extends Component {
 
             })
             .then(response => {
-                console.log(response);
                 if (response.status === 200) {
                     alert(response.data);
 

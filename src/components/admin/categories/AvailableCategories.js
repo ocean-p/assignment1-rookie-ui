@@ -4,6 +4,7 @@ import {
     Button, Form, FormGroup, Input, Container, Row, Col, Table,
     Modal, ModalHeader, ModalBody, ModalFooter
 } from 'reactstrap';
+import UpdateCategoryForm from './UpdateCategoryForm';
 
 export default class AvailableCategories extends Component {
 
@@ -18,7 +19,9 @@ export default class AvailableCategories extends Component {
 
             modal: false,
             categoryName: '',
-            categoryId: ''
+            categoryId: '',
+
+            modalUpdate: false
         };
     }
 
@@ -164,9 +167,21 @@ export default class AvailableCategories extends Component {
         this.setState({ modal: !this.state.modal })
     }
 
+    toggleUpdate() {
+        this.setState({ modalUpdate: !this.state.modalUpdate })
+    }
+
     toggleButton(categoryIdValue, categoryNameValue) {
         this.setState({
             modal: !this.state.modal,
+            categoryName: categoryNameValue,
+            categoryId: categoryIdValue
+        })
+    }
+
+    toggleButtonUpdate(categoryIdValue, categoryNameValue) {
+        this.setState({
+            modalUpdate: !this.state.modalUpdate,
             categoryName: categoryNameValue,
             categoryId: categoryIdValue
         })
@@ -205,6 +220,17 @@ export default class AvailableCategories extends Component {
                     alert("Fail to delete!");
                 }
             })
+    }
+
+    handleUpdate = () => {
+        this.toggleUpdate();
+        this.setState({ categoryId: '', categoryName: '' });
+        if (this.state.isSearch === true) {
+            this.changeSearchPage(1);
+        }
+        else {
+            this.loadData();
+        }
     }
 
     render() {
@@ -258,10 +284,14 @@ export default class AvailableCategories extends Component {
                                     <td>{category.createDate}</td>
                                     <td>{category.updateDate}</td>
                                     <td>
-                                        <Button color="primary">Update</Button>
+                                        <Button color="primary"
+                                            onClick={() => this.toggleButtonUpdate(`${category.id}`, `${category.name}`)}>
+                                            Update
+                                        </Button>
                                     </td>
                                     <td>
-                                        <Button color="danger" onClick={() => this.toggleButton(`${category.id}`, `${category.name}`)}>
+                                        <Button color="danger"
+                                            onClick={() => this.toggleButton(`${category.id}`, `${category.name}`)}>
                                             Delete
                                         </Button>
                                     </td>
@@ -297,6 +327,17 @@ export default class AvailableCategories extends Component {
                     <ModalFooter>
                         <Button color="danger" onClick={() => this.handleDelete()}>Delete</Button>
                         <Button color="primary" onClick={() => this.toggle()}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>
+                <Modal size="lg" isOpen={this.state.modalUpdate} toggle={() => this.toggleUpdate()}>
+                    <ModalHeader toggle={() => this.toggleUpdate()}>
+                        Update category: <b>{this.state.categoryName}</b> - id: <b>{this.state.categoryId}</b>
+                    </ModalHeader>
+                    <ModalBody>
+                        <UpdateCategoryForm id={this.state.categoryId} onUpdate={this.handleUpdate}/>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={() => this.toggleUpdate()}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
             </div>
