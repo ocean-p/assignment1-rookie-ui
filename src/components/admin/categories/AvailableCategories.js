@@ -106,13 +106,6 @@ export default class AvailableCategories extends Component {
                 else {
                     alert("Fail to load data!")
                 }
-                this.setState({
-                    categoryList: [],
-                    pageList: [],
-                    searchValue: '',
-                    searchPageList: [],
-                    isSearch: false
-                })
             })
     }
 

@@ -1,4 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import CustomerNavBar from './CustomerNavBar';
+import HomePage from './HomePage';
 
 export default class CustomerHome extends Component {
 
@@ -20,9 +22,12 @@ export default class CustomerHome extends Component {
                 <h1 style={{ color: 'white', backgroundColor: 'blue' }}>
                     Customer Home Page
                 </h1>
+                <CustomerNavBar />
                 <button type="submit" onClick={this.logout}>
                     Sign out
                 </button>
+
+                <HomePage /> 
             </div>
         )
     }

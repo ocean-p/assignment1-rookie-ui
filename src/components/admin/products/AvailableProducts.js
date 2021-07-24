@@ -133,13 +133,6 @@ export default class AvailableProducts extends Component {
                 else {
                     alert("Fail to load data!")
                 }
-                this.setState({
-                    productList: [],
-                    pageList: [],
-                    searchValue: '',
-                    searchPageList: [],
-                    isSearch: false
-                })
             })
     }
 

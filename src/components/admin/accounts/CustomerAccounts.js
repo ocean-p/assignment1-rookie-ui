@@ -106,13 +106,6 @@ export default class CustomerAccounts extends Component {
                 else {
                     alert("Fail to load data!")
                 }
-                this.setState({
-                    accountList: [],
-                    pageList: [],
-                    searchValue: '',
-                    searchPageList: [],
-                    isSearch: false
-                })
             })
     }
 
