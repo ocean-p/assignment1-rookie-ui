@@ -65,7 +65,7 @@ export default class UpdateAccountForm extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                alert("Success to update!");
+                alert("Success to update account!");
                 this.props.onUpdate();
             }
         })
@@ -100,7 +100,7 @@ export default class UpdateAccountForm extends Component {
                 }
             }
             else{
-                alert("Fail to Update!");
+                alert("Fail to update account!");
             }
         })    
     }

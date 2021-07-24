@@ -28,7 +28,7 @@ export default class AddAccountForm extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                alert("Success to create!");
+                alert("Success to add account!");
             }
         })
         .catch(err => {
@@ -59,7 +59,7 @@ export default class AddAccountForm extends Component {
                 }
             }
             else{
-                alert("Fail to Create!");
+                alert("Fail to add account!");
             }
         })
     }
@@ -129,7 +129,7 @@ export default class AddAccountForm extends Component {
                                 </select>
                             </Col>
                         </Row>
-                        <Button color="primary">Create Account</Button>
+                        <Button color="primary">Add Account</Button>
                     </Container>
                 </Form>
             </div>

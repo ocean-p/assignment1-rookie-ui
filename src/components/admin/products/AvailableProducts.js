@@ -7,6 +7,7 @@ import {
     Modal, ModalHeader, ModalBody, ModalFooter
 } from 'reactstrap';
 import axios from 'axios';
+import UpdateProductForm from './UpdateProductForm'
 
 export default class AvailableProducts extends Component {
 
@@ -28,7 +29,9 @@ export default class AvailableProducts extends Component {
 
             modal: false,
             productId: '',
-            productName: ''
+            productName: '',
+
+            modalUpdate: false
         };
     }
 
@@ -278,9 +281,21 @@ export default class AvailableProducts extends Component {
         this.setState({ modal: !this.state.modal })
     }
 
+    toggleUpdate() {
+        this.setState({ modalUpdate: !this.state.modalUpdate })
+    }
+
     toggleButton(productIdValue, productNameValue) {
         this.setState({
             modal: !this.state.modal,
+            productName: productNameValue,
+            productId: productIdValue
+        })
+    }
+
+    toggleButtonUpdate(productIdValue, productNameValue) {
+        this.setState({
+            modalUpdate: !this.state.modalUpdate,
             productName: productNameValue,
             productId: productIdValue
         })
@@ -326,6 +341,23 @@ export default class AvailableProducts extends Component {
                     alert("Fail to delete!");
                 }
             })
+    }
+
+    handleUpdate = () => {
+        this.toggleUpdate();
+        this.setState({
+            productId: '',
+            productName: ''
+        })
+        if (this.state.isSearch === true) {
+            this.changeSearchPage(1);
+        }
+        else if (this.state.isCategory === true) {
+            this.changeSearchByCategoryPage(1);
+        }
+        else {
+            this.loadData();
+        }
     }
 
     render() {
@@ -418,8 +450,8 @@ export default class AvailableProducts extends Component {
                             return (
                                 <Col key={index} className="mb-4">
                                     <Card>
-                                        <CardImg top width="50%" src="https://slyclothing.vn/wp-content/uploads/2021/01/jacket-winter_3.jpg"
-                                            alt="Card image cap" />
+                                        <CardImg top width="30%" src={product.image}
+                                            alt={product.name} />
                                         <CardBody>
                                             <CardTitle tag="h5">{product.name} / {product.price}$</CardTitle>
                                             <CardSubtitle tag="h6" className="mb-2 text-muted">Code: {product.id} -- {product.averageRate}/10 star</CardSubtitle>
@@ -427,9 +459,14 @@ export default class AvailableProducts extends Component {
                                             <CardText>Description: {product.description}</CardText>
                                             <CardText>Update-Date: {product.updateDate}</CardText>
                                             <CardText>Create-Date: {product.createDate}</CardText>
-                                            <Button color="primary">Update</Button>
+                                            
+                                            <Button color="primary" 
+                                                onClick={() => this.toggleButtonUpdate(`${product.id}`, `${product.name}`)}>
+                                                Update
+                                            </Button>
 
-                                            <Button color="danger" onClick={() => this.toggleButton(`${product.id}`, `${product.name}`)}>
+                                            <Button color="danger" 
+                                                onClick={() => this.toggleButton(`${product.id}`, `${product.name}`)}>
                                                 Delete
                                             </Button>
 
@@ -449,6 +486,18 @@ export default class AvailableProducts extends Component {
                     <ModalFooter>
                         <Button color="danger" onClick={() => this.handleDelete()}>Delete</Button>
                         <Button color="primary" onClick={() => this.toggle()}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>
+                <Modal size="lg" isOpen={this.state.modalUpdate} toggle={() => this.toggleUpdate()}>
+                    <ModalHeader toggle={() => this.toggleUpdate()}>
+                        Update product: <b>{this.state.productName}</b> -
+                             id: <b>{this.state.productId}</b> 
+                    </ModalHeader>
+                    <ModalBody>
+                        <UpdateProductForm id={this.state.productId} onUpdate={this.handleUpdate}/>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={() => this.toggleUpdate()}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
             </div>

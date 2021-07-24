@@ -24,7 +24,7 @@ export default class AddCategoryForm extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                alert("Success to create!");
+                alert("Success to add category!");
             }
         })
         .catch(err => {
@@ -32,15 +32,12 @@ export default class AddCategoryForm extends Component {
                 if(err.response.data.message === 'NAME_IS_EMPTY'){
                     alert("Name is empty");
                 }
-                else if(err.response.data.message === 'DESCRIPTION_IS_EMPTY'){
-                    alert("Description is empty");
-                }
                 else{
                     alert("Error");
                 }
             }
             else{
-                alert("Fail to Create!");
+                alert("Fail to add category!");
             }
         })
     }
@@ -68,10 +65,10 @@ export default class AddCategoryForm extends Component {
                             </Col>
                             <Col>
                                 <Input type="text" name="description" id="description"
-                                    placeholder="description" />
+                                    placeholder="description - can be blank" />
                             </Col>
                         </Row>
-                        <Button color="primary">Create Category</Button>
+                        <Button color="primary">Add Category</Button>
                     </Container>
                 </Form>
             </div>
