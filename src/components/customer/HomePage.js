@@ -1,12 +1,14 @@
 import axios from 'axios';
 import React, { Component } from 'react';
 import {
-    Card, Button, CardImg, CardTitle, CardText,
+    Card, Button, CardImg, CardTitle,
     CardSubtitle, CardBody, Container, Row, Col,
-    Form, FormGroup, Input, UncontrolledButtonDropdown,
+    Form, Input, UncontrolledButtonDropdown,
     DropdownMenu, DropdownItem, DropdownToggle,
     Modal, ModalHeader, ModalBody, ModalFooter
 } from 'reactstrap';
+import ProductInfo from './ProductInfo';
+import Rating from './Rating';
 
 export default class HomePage extends Component {
 
@@ -26,6 +28,12 @@ export default class HomePage extends Component {
             searchValue: '',
             searchPageList: [],
             isSearch: false,
+
+            modalMore: false,
+            productId: '',
+            productName: '',
+
+            modalRating: false
         };
     }
 
@@ -277,6 +285,38 @@ export default class HomePage extends Component {
             }
         })
     }
+
+    toggleMore() {
+        this.setState({ 
+            modalMore: !this.state.modalMore,
+            productId: '',
+            productName: '' 
+        });
+    }
+
+    toggleMoreButton(productIdValue, productNameValue) {
+        this.setState({ 
+            modalMore: !this.state.modalMore,
+            productId: productIdValue,
+            productName: productNameValue
+        })
+    }
+
+    toggleRating() {
+        this.setState({ 
+            modalRating: !this.state.modalRating,
+            productId: '',
+            productName: '' 
+        });
+    }
+
+    toggleRatingButton(productIdValue, productNameValue) {
+        this.setState({ 
+            modalRating: !this.state.modalRating,
+            productId: productIdValue,
+            productName: productNameValue
+        })
+    }
  
     render() {
         return (
@@ -368,11 +408,13 @@ export default class HomePage extends Component {
                                             <CardTitle tag="h5">{product.name} / {product.price}$</CardTitle>
                                             <CardSubtitle tag="h6" className="mb-2 text-muted">Code: {product.id}</CardSubtitle>
 
-                                            <Button color="info">
+                                            <Button color="info"
+                                                onClick={() => this.toggleMoreButton(`${product.id}`, `${product.name}`)}>
                                                 More
                                             </Button>
 
-                                            <Button color="warning">
+                                            <Button color="warning"
+                                                onClick={() => this.toggleRatingButton(`${product.id}`, `${product.name}`)}>
                                                 Rating
                                             </Button>
                                         </CardBody>
@@ -382,6 +424,28 @@ export default class HomePage extends Component {
                         })}
                     </Row>
                 </Container>
+                <Modal size="lg" isOpen={this.state.modalMore} toggle={() => this.toggleMore()}>
+                    <ModalHeader toggle={() => this.toggleMore()}>
+                        Product Info - Code: {this.state.productId}
+                    </ModalHeader>
+                    <ModalBody>
+                        <ProductInfo id={this.state.productId} />
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" onClick={() => this.toggleMore()}>Close</Button>
+                    </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.modalRating} toggle={() => this.toggleRating()}>
+                    <ModalHeader toggle={() => this.toggleRating()}>
+                        Rating product: {this.state.productName} - code: {this.state.productId}
+                    </ModalHeader>
+                    <ModalBody>
+                        <Rating id={this.state.productId} onClose={() => this.toggleRating()}/>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" onClick={() => this.toggleRating()}>Close</Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         )
     }
