@@ -6,11 +6,38 @@ export default class Login extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            usernameErr: '', 
+            passwordErr: ''
+        };
+    }
+
+    validate(e) {
+        let check = true;
+        if(e.target.username.value === ''){
+            check = false;
+            this.setState({usernameErr: 'Please input username'})
+        }
+        else{
+            this.setState({usernameErr: ''})
+        }
+
+        if(e.target.password.value === ''){
+            check = false;
+            this.setState({passwordErr: 'Please input password'})
+        }
+        else{
+            this.setState({passwordErr: ''})
+        }
+
+        return check;
     }
 
     handleSignin(e) {
         e.preventDefault();
+
+        if(this.validate(e) === false) return;
+
         axios.post('http://localhost:8080/signin', {
             username: e.target.username.value,
             password: e.target.password.value
@@ -23,8 +50,8 @@ export default class Login extends Component {
                     this.props.onLogin();
                 }
             })
-            .catch(err => {
-                alert("Login Fail!");
+            .catch(() => {
+                alert("Fail to login!");
             })
     }
 
@@ -44,6 +71,9 @@ export default class Login extends Component {
                                 <FormGroup className="mb-4">
                                     <Label for="username" className="mr-sm-2">Username</Label>
                                     <Input type="text" name="username" id="username" />
+                                    <p style={{color: 'red'}}>
+                                        {this.state.usernameErr}
+                                    </p>
                                 </FormGroup>
                             </Col>
                         </Row>
@@ -52,6 +82,9 @@ export default class Login extends Component {
                                 <FormGroup className="mb-4">
                                     <Label for="password" className="mr-sm-2">Password</Label>
                                     <Input type="password" name="password" id="password" />
+                                    <p style={{color: 'red'}}>
+                                        {this.state.passwordErr}
+                                    </p>
                                 </FormGroup>
                             </Col>
                         </Row>

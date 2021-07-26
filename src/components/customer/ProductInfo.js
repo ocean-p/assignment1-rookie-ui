@@ -85,8 +85,8 @@ export default class ProductInfo extends Component {
             <div>
                 <Container>
                     <Row xs="2">
-                        <img src="https://slyclothing.vn/wp-content/uploads/2021/01/jacket-winter_3.jpg" 
-                                alt="product"/>
+                        <img src={this.state.image} 
+                                alt={this.state.name}/>
                         <Col xs="6">
                             <p>
                                 <span style={{fontSize: '20px', marginRight: '15px'}}>

@@ -33,6 +33,9 @@ export default class CustomerNavBar extends Component {
                             <NavItem>
                                 <NavLink href="/">Home</NavLink>
                             </NavItem>
+                            <NavItem>
+                                <NavLink href="/cart">Cart</NavLink>
+                            </NavItem>
                         </Nav>
                     </Collapse>
                 </Navbar>

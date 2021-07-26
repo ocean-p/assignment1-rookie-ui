@@ -7,12 +7,38 @@ export default class AddProductForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            categoryList: []
+            categoryList: [],
+
+            imageSelected: '',
+            imageUrl: ''
         };
     }
 
     componentDidMount() {
         this.loadCategory();
+    }
+
+    uploadImage() {
+        if(this.state.imageSelected){
+            const formData = new FormData();
+            formData.append("file", this.state.imageSelected);
+            formData.append("upload_preset", "jk6qdqlp");
+
+            axios.post('https://api.cloudinary.com/v1_1/daboy6hii/image/upload', formData)
+            .then((response) => {
+                if(response.status === 200) {
+                    this.setState({
+                        imageUrl: response.data.url
+                    })
+                }
+            })
+            .catch(() => {
+                alert("Fail to upload image!");
+            })
+        }
+        else{
+            alert('Please select a image before upload!');
+        }
     }
 
     loadCategory() {
@@ -37,7 +63,7 @@ export default class AddProductForm extends Component {
                 price: e.target.price.value,
                 quantity: e.target.quantity.value,
                 description: e.target.description.value,
-                image: e.target.image.value,
+                image: `${this.state.imageUrl}`,
                 categoryId: e.target.category.value
             },
             {
@@ -121,7 +147,7 @@ export default class AddProductForm extends Component {
                             </Col>
                             <Col>
                                 <Input type="text" name="description" id="description"
-                                    placeholder="description -- can be blank"/>   
+                                    placeholder="description - can be blank"/>   
                             </Col>
                         </Row>
                         <Row xs="4" className="mb-4">
@@ -129,8 +155,13 @@ export default class AddProductForm extends Component {
                                 <Label for="image">Image URL</Label>
                             </Col>
                             <Col>
-                                <Input type="text" name="image" id="image"
-                                    placeholder="image"/>    
+                                <Input type="text" value={this.state.imageUrl} readOnly 
+                                    placeholder="Choose image and upload"/>    
+                            </Col>
+                            <Col>
+                                <Input type="file" className="mb-2" accept="image/*"
+                                    onChange={(e) => this.setState({imageSelected: e.target.files[0]})}/>
+                                <Button onClick={() => this.uploadImage()}>Upload</Button>
                             </Col>
                         </Row>
                         <Row xs="4" className="mb-4">
@@ -149,7 +180,7 @@ export default class AddProductForm extends Component {
                                 </select>
                             </Col>
                         </Row>
-                        <Button color="primary">Add Product</Button>
+                        <Button color="primary" className="mb-4">Add Product</Button>
                     </Container>
                 </Form>
             </div>

@@ -317,7 +317,48 @@ export default class HomePage extends Component {
             productName: productNameValue
         })
     }
- 
+    
+    handleAddToCart(productId) {
+        axios.post('http://localhost:8080/customer/cart/add', 
+            {
+                username: `${localStorage.getItem('name')}`,
+                product: {
+                    id: `${productId}`
+                }
+            },
+            {
+                headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+            }
+        )
+        .then(response => {
+            if(response.status === 200){
+                alert(response.data);
+            }
+        })
+        .catch(err => {
+            if (err.response) {
+                if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
+                    alert("Account not found");
+                }
+                else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
+                    alert("Account is disabled");
+                }
+                else if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
+                    alert("Product not found");
+                }
+                else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
+                    alert("Product is disabled");
+                }
+                else {
+                    alert("Error - try again");
+                }
+            }
+            else {
+                alert("Fail to add product to cart!");
+            }
+        })
+    }
+
     render() {
         return (
             <div>
@@ -401,8 +442,12 @@ export default class HomePage extends Component {
                         {this.state.productList.map((product, index) => {
                             return (
                                 <Col key={index} className="mb-4">
+                                    <Button color="success" 
+                                            onClick={() => this.handleAddToCart(`${product.id}`)}>
+                                        Add to cart
+                                    </Button>
                                     <Card>
-                                        <CardImg top width="30%" src="https://slyclothing.vn/wp-content/uploads/2021/01/jacket-winter_3.jpg"
+                                        <CardImg top width="50%" src={product.image}
                                             alt={product.name} />
                                         <CardBody>
                                             <CardTitle tag="h5">{product.name} / {product.price}$</CardTitle>

@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import CustomerNavBar from './CustomerNavBar';
 import HomePage from './HomePage';
+import Cart from './Cart';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 export default class CustomerHome extends Component {
 
@@ -18,6 +20,7 @@ export default class CustomerHome extends Component {
 
     render() {
         return (
+        <Router>
             <div>
                 <h1 style={{ color: 'white', backgroundColor: 'blue' }}>
                     Customer Home Page
@@ -27,8 +30,10 @@ export default class CustomerHome extends Component {
                     Sign out
                 </button>
 
-                <HomePage /> 
+                <Route exact path="/" component={HomePage} />
+                <Route exact path="/cart" component={Cart} />
             </div>
+        </Router>
         )
     }
 }

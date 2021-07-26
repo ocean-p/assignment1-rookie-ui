@@ -7,13 +7,15 @@ export default class UpdateProductForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
-           name: '',
-           price: 0,
-           quantity: 0,
-           description: '',
-           image: '',
-           categoryId: 1, 
-           categoryList: []
+            name: '',
+            price: 0,
+            quantity: 0,
+            description: '',
+            imageUrl: '',
+            categoryId: 1,
+            categoryList: [],
+
+            imageSelected: ''
         };
     }
 
@@ -37,99 +39,122 @@ export default class UpdateProductForm extends Component {
     }
 
     loadData() {
-        axios.get(`http://localhost:8080/admin/product/${this.props.id}`, 
+        axios.get(`http://localhost:8080/admin/product/${this.props.id}`,
             {
                 headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
             }
         )
-        .then(response => {
-            if(response.status === 200){
-                this.setState({
-                    name: response.data.name,
-                    price: response.data.price,
-                    quantity: response.data.quantity,
-                    image: response.data.image,
-                    description: response.data.description,
-                    categoryId: response.data.categoryId
-                })
-            }
-        })
-        .catch(err => {
-            if(err.response){
-                if(err.response.data.message === 'PRODUCT_NOT_FOUND'){
-                    alert("Product not found");
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        name: response.data.name,
+                        price: response.data.price,
+                        quantity: response.data.quantity,
+                        imageUrl: response.data.image,
+                        description: response.data.description,
+                        categoryId: response.data.categoryId
+                    })
                 }
-                else if(err.response.data.message === 'PRODUCT_IS_DISABLED'){
-                    alert("Product is disabled");
+            })
+            .catch(err => {
+                if (err.response) {
+                    if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
+                        alert("Product not found");
+                    }
+                    else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
+                        alert("Product is disabled");
+                    }
+                    else {
+                        alert("Error");
+                    }
                 }
-                else{
-                    alert("Error");
+                else {
+                    alert("Fail to load data!");
                 }
-            }
-            else{
-                alert("Fail to load data!");
-            }
-        })
+            })
+    }
+
+    uploadImage() {
+        if(this.state.imageSelected){
+            const formData = new FormData();
+            formData.append("file", this.state.imageSelected);
+            formData.append("upload_preset", "jk6qdqlp");
+
+            axios.post('https://api.cloudinary.com/v1_1/daboy6hii/image/upload', formData)
+            .then((response) => {
+                if(response.status === 200) {
+                    this.setState({
+                        imageUrl: response.data.url
+                    })
+                }
+            })
+            .catch(() => {
+                alert("Fail to upload image!");
+            })
+        }
+        else{
+            alert('Please select a image before upload!');
+        }
     }
 
     handleUpdate(e) {
         e.preventDefault();
-        axios.put(`http://localhost:8080/admin/product/${this.props.id}`, 
+        axios.put(`http://localhost:8080/admin/product/${this.props.id}`,
             {
                 name: e.target.name.value,
                 price: e.target.price.value,
                 quantity: e.target.quantity.value,
                 description: e.target.description.value,
-                image: e.target.image.value,
+                image: `${this.state.imageUrl}`,
                 categoryId: e.target.category.value
-            }, 
+            },
             {
                 headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
             }
         )
-        .then(response => {
-            if(response.status === 200){
-                alert('Success to update product!');
-                this.props.onUpdate();
-            }
-        })
-        .catch(err => {
-            if(err.response){
-                if(err.response.data.message === 'PRODUCT_NOT_FOUND'){
-                    alert("Product not found");
+            .then(response => {
+                if (response.status === 200) {
+                    alert('Success to update product!');
+                    this.props.onUpdate();
                 }
-                else if(err.response.data.message === 'PRODUCT_IS_DISABLED'){
-                    alert("Product is disabled");
+            })
+            .catch(err => {
+                if (err.response) {
+                    if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
+                        alert("Product not found");
+                    }
+                    else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
+                        alert("Product is disabled");
+                    }
+                    else if (err.response.data.message === 'CATEGORY_NOT_FOUND') {
+                        alert("Category not found");
+                    }
+                    else if (err.response.data.message === 'CATEGORY_IS_DISABLED') {
+                        alert("Category is disabled");
+                    }
+                    else if (err.response.data.message === 'NAME_IS_EMPTY') {
+                        alert("Name is empty");
+                    }
+                    else if (err.response.data.message === 'IMAGEURL_IS_EMPTY') {
+                        alert("Image url is empty");
+                    }
+                    else if (err.response.data.message === 'DESCRIPTION_IS_EMPTY') {
+                        alert("Description is empty");
+                    }
+                    else if (err.response.data.message === 'PRICE_LESS_THAN_ZERO') {
+                        alert("Price must be > 0");
+                    }
+                    else if (err.response.data.message === 'QUANTITY_LESS_THAN_ZERO') {
+                        alert("Quantity must be > 0");
+                    }
+                    else {
+                        alert("Error");
+                    }
                 }
-                else if(err.response.data.message === 'CATEGORY_NOT_FOUND'){
-                    alert("Category not found");
+                else {
+                    alert("Fail to update product!");
                 }
-                else if(err.response.data.message === 'CATEGORY_IS_DISABLED'){
-                    alert("Category is disabled");
-                }
-                else if(err.response.data.message === 'NAME_IS_EMPTY'){
-                    alert("Name is empty");
-                }
-                else if(err.response.data.message === 'IMAGEURL_IS_EMPTY'){
-                    alert("Image url is empty");
-                }
-                else if(err.response.data.message === 'DESCRIPTION_IS_EMPTY'){
-                    alert("Description is empty");
-                }
-                else if(err.response.data.message === 'PRICE_LESS_THAN_ZERO'){
-                    alert("Price must be > 0");
-                }
-                else if(err.response.data.message === 'QUANTITY_LESS_THAN_ZERO'){
-                    alert("Quantity must be > 0");
-                }
-                else{
-                    alert("Error");
-                }
-            }
-            else{
-                alert("Fail to update product!");
-            }
-        })
+            })
     }
 
     handleChange(e, key) {
@@ -147,8 +172,8 @@ export default class UpdateProductForm extends Component {
                             </Col>
                             <Col>
                                 <Input type="text" name="name" id="name"
-                                    value={this.state.name} 
-                                    onChange={(e) => this.handleChange(e, "name")}/>
+                                    value={this.state.name}
+                                    onChange={(e) => this.handleChange(e, "name")} />
                             </Col>
                         </Row>
                         <Row xs="3" className="mb-4">
@@ -157,8 +182,8 @@ export default class UpdateProductForm extends Component {
                             </Col>
                             <Col>
                                 <Input type="text" name="price" id="price"
-                                    value={this.state.price} 
-                                    onChange={(e) => this.handleChange(e, "price")}/>
+                                    value={this.state.price}
+                                    onChange={(e) => this.handleChange(e, "price")} />
                             </Col>
                         </Row>
                         <Row xs="3" className="mb-4">
@@ -167,8 +192,8 @@ export default class UpdateProductForm extends Component {
                             </Col>
                             <Col>
                                 <Input type="number" name="quantity" id="quantity"
-                                    value={this.state.quantity} 
-                                    onChange={(e) => this.handleChange(e, "quantity")}/>
+                                    value={this.state.quantity}
+                                    onChange={(e) => this.handleChange(e, "quantity")} />
                             </Col>
                         </Row>
                         <Row xs="3" className="mb-4">
@@ -177,18 +202,29 @@ export default class UpdateProductForm extends Component {
                             </Col>
                             <Col>
                                 <Input type="text" name="description" id="description"
-                                    value={this.state.description} 
-                                    onChange={(e) => this.handleChange(e, "description")}/>   
+                                    value={this.state.description}
+                                    onChange={(e) => this.handleChange(e, "description")} />
                             </Col>
                         </Row>
-                        <Row xs="3" className="mb-4">
+                        <Row xs="3" className="mb-2">
                             <Col>
                                 <Label for="image">Image URL</Label>
                             </Col>
                             <Col>
-                                <Input type="text" name="image" id="image"
-                                    value={this.state.image} 
-                                    onChange={(e) => this.handleChange(e, "image")}/>    
+                                <Input type="text"
+                                    value={this.state.imageUrl} readOnly />
+                            </Col>
+                            <Col>
+                                <Button onClick={() => this.uploadImage()}>Upload</Button>
+                            </Col>
+                        </Row>
+                        <Row xs="3" className="mb-4">
+                            <Col>
+                                
+                            </Col>
+                            <Col>
+                                <Input type="file" 
+                                onChange={(e) => this.setState({imageSelected: e.target.files[0]})}/>
                             </Col>
                         </Row>
                         <Row xs="3" className="mb-4">
@@ -196,10 +232,10 @@ export default class UpdateProductForm extends Component {
                                 <Label for="category">Category</Label>
                             </Col>
                             <Col>
-                                <select style={{height: '40px', width: '100px'}} id="category" name="category">
+                                <select style={{ height: '40px', width: '100px' }} id="category" name="category">
                                     {this.state.categoryList.map((category, index) => {
-                                        return(
-                                            <option key={index} value={category.id} 
+                                        return (
+                                            <option key={index} value={category.id}
                                                 selected={this.state.categoryId === category.id}>
                                                 {category.name}
                                             </option>

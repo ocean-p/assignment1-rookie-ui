@@ -144,8 +144,8 @@ export default class DisabledProducts extends Component {
                             return (
                                 <Col key={index} className="mb-4">
                                     <Card>
-                                        <CardImg top width="50%" src="https://slyclothing.vn/wp-content/uploads/2021/01/jacket-winter_3.jpg"
-                                            alt="Card image cap" />
+                                        <CardImg top width="50%" src={product.image}
+                                            alt={product.name} />
                                         <CardBody>
                                             <CardTitle tag="h5">{product.name} - {product.price}$</CardTitle>
                                             <CardSubtitle tag="h6" className="mb-2 text-muted">Code: {product.id} -- {product.averageRate}/10 star</CardSubtitle>
