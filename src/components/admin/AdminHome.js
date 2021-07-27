@@ -20,6 +20,8 @@ export default class AdminHome extends Component {
     }
 
     logout = () => {
+        if(window.confirm('Are you sure sign out ?') === false) return;
+
         localStorage.removeItem('accessToken');
         localStorage.removeItem('role');
         localStorage.removeItem('name');
@@ -30,7 +32,10 @@ export default class AdminHome extends Component {
         return (
             <Router>
                 <div>
-                    <h1 style={{ color: 'white', backgroundColor: 'red' }}>
+                    <h1 style={{ color: 'white', 
+                                 backgroundColor: 'darkred',
+                                 textAlign: 'center', 
+                                 height: '60px'}}>
                         Admin Home Page
                     </h1>
                     <AdminNavBar />

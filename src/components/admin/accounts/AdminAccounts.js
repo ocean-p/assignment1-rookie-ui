@@ -26,7 +26,7 @@ export default class AdminAccounts extends Component {
                     this.handlePageList(response);    
                 }
             })
-            .catch(err => {
+            .catch(() => {
                 alert("Fail to load data!");
             })
     }
@@ -43,6 +43,9 @@ export default class AdminAccounts extends Component {
         if(list.length > 1){
             this.setState({ pageList: list });
         }
+        else{
+            this.setState({ pageList: [] });
+        }
     }
 
     changePage(page) {
@@ -57,7 +60,17 @@ export default class AdminAccounts extends Component {
                 }
             })
             .catch(err => {
-                alert("Fail to load data!");
+                if(err.response){
+                    if(err.response.data.message === 'PAGE_LESS_THAN_ONE'){
+                        alert("Page must be from 1 !");
+                    }
+                    else{
+                        alert("Error to change page !");
+                    }
+                }
+                else{
+                    alert("Fail to change page !");
+                }
             })
     }
 

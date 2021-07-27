@@ -7,7 +7,7 @@ export default class AddAccountForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            
+
         };
     }
 
@@ -23,113 +23,115 @@ export default class AddAccountForm extends Component {
                 role: e.target.role.value,
             },
             {
-                headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` } 
+                headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
             }
         )
-        .then(response => {
-            if(response.status === 200){
-                alert("Success to add account!");
-            }
-        })
-        .catch(err => {
-            if(err.response){
-                if(err.response.data.message === 'USERNAME_IS_EMPTY'){
-                    alert("Username is empty");
+            .then(response => {
+                if (response.status === 200) {
+                    alert("Success to add account.");
                 }
-                else if(err.response.data.message === 'USERNAME_ALREADY_TAKEN'){
-                    alert("Username already taken");
+            })
+            .catch(err => {
+                if (err.response) {
+                    switch (err.response.data.message) {
+                        case 'USERNAME_NOT_CORRECT_FORMAT':
+                            alert("Username not correct format !");
+                            break;
+                        case 'PASSWORD_NOT_CORRECT_FORMAT':
+                            alert("Password not correct format !");
+                            break;
+                        case 'FULLNAME_IS_EMPTY':
+                            alert("Full name is empty !");
+                            break;
+                        case 'PHONE_NOT_CORRECT_FORMAT':
+                            alert("Phone not correct format !");
+                            break;
+                        case 'ADDRESS_IS_EMPTY':
+                            alert("Address is empty !");
+                            break;
+                        case 'USERNAME_ALREADY_TAKEN':
+                            alert("Username already used !");
+                            break;
+                        case 'ROLE_NOT_CORRECT':
+                            alert("Role Role must be customer or admin !");
+                            break;    
+                        default:
+                            alert("Error to add account !");
+                    }
                 }
-                else if(err.response.data.message === 'PASSWORD_NOT_CORRECT_FORMAT'){
-                    alert("Password - Max:20, Min:6");
+                else {
+                    alert("Fail to add account!");
                 }
-                else if(err.response.data.message === 'FULLNAME_IS_EMPTY'){
-                    alert("Full name is empty");
-                }
-                else if(err.response.data.message === 'PHONE_NOT_CORRECT_FORMAT'){
-                    alert("Phone not correct format - 10 or 11 numbers");
-                }
-                else if(err.response.data.message === 'ADDRESS_IS_EMPTY'){
-                    alert("Address is empty");
-                }
-                else if(err.response.data.message === 'ROLE_NOT_CORRECT'){
-                    alert("Role must be customer or admin");
-                }
-                else{
-                    alert("Error");
-                }
-            }
-            else{
-                alert("Fail to add account!");
-            }
-        })
+            })
     }
 
     render() {
         return (
             <div>
-                <h2 style={{marginLeft: '50px', marginTop: '20px'}}>
+                <h2 style={{ marginLeft: '50px', 
+                             marginTop: '20px'}}>
                     Add Account Form
                 </h2>
-                <br/>
+                <br />
                 <Form onSubmit={(e) => this.handleAdd(e)}>
                     <Container>
                         <Row xs="4" className="mb-4">
                             <Col>
-                                <Label for="username">Username</Label>
+                                <Label for="username"><b>Username</b></Label>
                             </Col>
                             <Col>
                                 <Input type="text" name="username" id="usernamefield"
-                                    placeholder="username"/>
+                                    placeholder="No special characters and space" />
                             </Col>
                         </Row>
                         <Row xs="4" className="mb-4">
                             <Col>
-                                <Label for="password">Password</Label>
+                                <Label for="password"><b>Password</b></Label>
                             </Col>
                             <Col>
                                 <Input type="password" name="password" id="passwordfield"
-                                    placeholder="password"/>
+                                    placeholder="Min: 6 / Max: 20" />
                             </Col>
                         </Row>
                         <Row xs="4" className="mb-4">
                             <Col>
-                                <Label for="fullname">Fullname</Label>
+                                <Label for="fullname"><b>Fullname</b></Label>
                             </Col>
                             <Col>
                                 <Input type="text" name="fullname" id="fullnamefield"
-                                    placeholder="full-name"/>
+                                    placeholder="Not empty" />
                             </Col>
                         </Row>
                         <Row xs="4" className="mb-4">
                             <Col>
-                                <Label for="phone">Phone</Label>
+                                <Label for="phone"><b>Phone</b></Label>
                             </Col>
                             <Col>
                                 <Input type="number" name="phone" id="phonefield"
-                                    placeholder="phone"/>   
+                                    placeholder="Not empty - 10 or 11 numbers" />
                             </Col>
                         </Row>
                         <Row xs="4" className="mb-4">
                             <Col>
-                                <Label for="address">Address</Label>
+                                <Label for="address"><b>Address</b></Label>
                             </Col>
                             <Col>
                                 <Input type="text" name="address" id="addressfield"
-                                    placeholder="address"/>    
+                                    placeholder="Not empty" />
                             </Col>
                         </Row>
                         <Row xs="4" className="mb-4">
                             <Col>
-                                <Label for="role">Role</Label>
+                                <Label for="role"><b>Role</b></Label>
                             </Col>
                             <Col>
-                                <select style={{height: '30px'}} id="rolefield" name="role">
+                                <select style={{ height: '30px' }} id="rolefield" name="role">
                                     <option>customer</option>
                                     <option>admin</option>
                                 </select>
                             </Col>
                         </Row>
-                        <Button color="primary">Add Account</Button>
+                        <Button color="primary" className="mb-4">Add Account</Button>
                     </Container>
                 </Form>
             </div>

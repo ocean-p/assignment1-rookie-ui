@@ -31,7 +31,7 @@ export default class DisabledAccounts extends Component {
                     this.handlePageList(response);
                 }
             })
-            .catch(err => {
+            .catch(() => {
                 alert("Fail to load data!");
             })
     }
@@ -43,6 +43,9 @@ export default class DisabledAccounts extends Component {
         }
         if (list.length > 1) {
             this.setState({ pageList: list });
+        }
+        else{
+            this.setState({ pageList: [] });
         }
     }
 
@@ -58,7 +61,17 @@ export default class DisabledAccounts extends Component {
                 }
             })
             .catch(err => {
-                alert("Fail to load data!");
+                if(err.response){
+                    if(err.response.data.message === 'PAGE_LESS_THAN_ONE'){
+                        alert("Page must be from 1 !");
+                    }
+                    else{
+                        alert("Error to change page !");
+                    }
+                }
+                else{
+                    alert("Fail to change page !");
+                }
             })
     }
 
@@ -92,21 +105,20 @@ export default class DisabledAccounts extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        alert("Account not found");
+                        alert("Account not found !");
                     }
                     else if (err.response.data.message === 'ACCOUNT_NOT_BELONG_TO_CUSTOMER') {
-                        alert("Account not belong to customer");
+                        alert("Account not belong to customer !");
                     }
                     else if (err.response.data.message === 'ACCOUNT_ACTIVE') {
-                        alert("Account already active");
+                        alert("Account already active !");
                     }
                     else {
-                        alert("Error");
-                        console.log(err);
+                        alert("Error to restore !");
                     }
                 }
                 else {
-                    alert("Fail to restore!");
+                    alert("Fail to restore !");
                 }
             })
     }

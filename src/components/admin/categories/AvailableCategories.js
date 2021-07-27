@@ -37,7 +37,7 @@ export default class AvailableCategories extends Component {
                     this.handlePageList(response);
                 }
             })
-            .catch(err => {
+            .catch(() => {
                 alert("Fail to load data!");
             })
     }
@@ -70,8 +70,8 @@ export default class AvailableCategories extends Component {
                     })
                 }
             })
-            .catch(err => {
-                alert("Fail to load data!");
+            .catch(() => {
+                alert("Fail to change page!");
             })
     }
 
@@ -104,7 +104,7 @@ export default class AvailableCategories extends Component {
                     }
                 }
                 else {
-                    alert("Fail to load data!")
+                    alert("Fail to search!")
                 }
             })
     }

@@ -36,7 +36,7 @@ export default class UpdateAccountForm extends Component {
                     alert("Account not found");
                 }
                 else{
-                    alert("Error");
+                    alert("Error to load data");
                 }
             }
             else{
@@ -71,32 +71,33 @@ export default class UpdateAccountForm extends Component {
         })
         .catch(err => {
             if(err.response){
-                if(err.response.data.message === 'ACCOUNT_NOT_FOUND'){
-                    alert("Account not found");
-                }
-                else if(err.response.data.message === 'ACCOUNT_NOT_BELONG_TO_CUSTOMER'){
-                    alert("Account not belong to customer");
-                }
-                else if(err.response.data.message === 'ACCOUNT_IS_DISABLED'){
-                    alert("Account is disabled");
-                }
-                else if(err.response.data.message === 'PASSWORD_NOT_CORRECT_FORMAT'){
-                    alert("Password - Max:20, Min:6");
-                }
-                else if(err.response.data.message === 'FULLNAME_IS_EMPTY'){
-                    alert("Full name is empty");
-                }
-                else if(err.response.data.message === 'PHONE_NOT_CORRECT_FORMAT'){
-                    alert("Phone not correct format - 10 or 11 numbers");
-                }
-                else if(err.response.data.message === 'ADDRESS_IS_EMPTY'){
-                    alert("Address is empty");
-                }
-                else if(err.response.data.message === 'ROLE_NOT_CORRECT'){
-                    alert("Role must be customer or admin");
-                }
-                else{
-                    alert("Error");
+                switch (err.response.data.message) {
+                    case 'ACCOUNT_NOT_FOUND':
+                        alert("Account not found");
+                        break;
+                    case 'ACCOUNT_NOT_BELONG_TO_CUSTOMER':
+                        alert("Account not belong to customer");
+                        break;
+                    case 'ACCOUNT_IS_DISABLED':
+                        alert("Account is disabled");
+                        break;
+                    case 'PASSWORD_NOT_CORRECT_FORMAT':
+                        alert("Password - Max:20, Min:6");
+                        break;
+                    case 'FULLNAME_IS_EMPTY':
+                        alert("Full name is empty");
+                        break;
+                    case 'PHONE_NOT_CORRECT_FORMAT':
+                        alert("Phone not correct format - 10 or 11 numbers");
+                        break;
+                    case 'ADDRESS_IS_EMPTY':
+                        alert("Address is empty");
+                        break;
+                    case 'ROLE_NOT_CORRECT':
+                        alert("Role must be customer or admin");
+                        break;
+                    default:
+                        alert("Error to update !");       
                 }
             }
             else{

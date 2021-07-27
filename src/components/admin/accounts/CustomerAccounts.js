@@ -41,8 +41,8 @@ export default class CustomerAccounts extends Component {
                     this.handlePageList(response);
                 }
             })
-            .catch(err => {
-                alert("Fail to load data!");
+            .catch(() => {
+                alert("Fail to load customer accounts !");
             })
     }
 
@@ -71,7 +71,17 @@ export default class CustomerAccounts extends Component {
                 }
             })
             .catch(err => {
-                alert("Fail to load data!");
+                if(err.response){
+                    if(err.response.data.message === 'PAGE_LESS_THAN_ONE'){
+                        alert("Page must be from 1 !");
+                    }
+                    else{
+                        alert("Error to change page !");
+                    }
+                }
+                else {
+                    alert("Fail to change page !");
+                }
             })
     }
 
@@ -88,7 +98,7 @@ export default class CustomerAccounts extends Component {
                         isSearch: true
                     }, () => {
                         if (this.state.accountList.length === 0) {
-                            alert("No results");
+                            alert("No results.");
                         }
                     })
                     this.handleSearchPageList(response);
@@ -104,7 +114,7 @@ export default class CustomerAccounts extends Component {
                     }
                 }
                 else {
-                    alert("Fail to load data!")
+                    alert("Fail to search!")
                 }
             })
     }
@@ -143,7 +153,7 @@ export default class CustomerAccounts extends Component {
                     }
                 }
                 else {
-                    alert("Fail to load data!")
+                    alert("Fail to change page!");
                 }
             })
     }
@@ -198,20 +208,20 @@ export default class CustomerAccounts extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        alert("Account not found");
+                        alert("Account not found !");
                     }
                     else if (err.response.data.message === 'ACCOUNT_NOT_BELONG_TO_CUSTOMER') {
-                        alert("Account not belong to customer");
+                        alert("Account not belong to customer !");
                     }
                     else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                        alert("Account is disabled");
+                        alert("Account is disabled !");
                     }
                     else {
-                        alert("Error");
+                        alert("Error to delete account !");
                     }
                 }
                 else {
-                    alert("Fail to delete!");
+                    alert("Fail to delete account !");
                 }
             })
     }

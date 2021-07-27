@@ -30,7 +30,9 @@ export default class AdminNavBar extends Component {
         return (
             <div>
                 <Navbar color="light" light expand="md">
-                    <NavbarBrand href="/">Welcome admin, {this.state.username}</NavbarBrand>
+                    <NavbarBrand href="/">
+                        Welcome admin, {this.state.username}
+                    </NavbarBrand>
                     <NavbarToggler onClick={this.toggle} />
                     <Collapse isOpen={this.state.isOpen} navbar>
                         <Nav className="mr-auto" navbar>

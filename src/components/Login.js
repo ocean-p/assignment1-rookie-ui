@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Form, FormGroup, Label, Input, Container, Row, Col } from 'reactstrap';
+import { Button, Form, FormGroup, Input, Container, Row, Col } from 'reactstrap';
 import axios from 'axios';
 
 export default class Login extends Component {
@@ -60,7 +60,10 @@ export default class Login extends Component {
             <div>
                 <h1 style={{
                     textAlign: 'center',
-                    backgroundColor: 'green', color: 'white'
+                    backgroundColor: 'green', 
+                    color: 'white',
+                    height: '60px',
+                    marginBottom: '20px'
                 }}>
                     LOGIN PAGE
                 </h1>
@@ -69,8 +72,8 @@ export default class Login extends Component {
                         <Row>
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
                                 <FormGroup className="mb-4">
-                                    <Label for="username" className="mr-sm-2">Username</Label>
-                                    <Input type="text" name="username" id="username" />
+                                    <Input type="text" name="username" id="username" 
+                                        placeholder="username"/>
                                     <p style={{color: 'red'}}>
                                         {this.state.usernameErr}
                                     </p>
@@ -80,8 +83,8 @@ export default class Login extends Component {
                         <Row>
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
                                 <FormGroup className="mb-4">
-                                    <Label for="password" className="mr-sm-2">Password</Label>
-                                    <Input type="password" name="password" id="password" />
+                                    <Input type="password" name="password" id="password" 
+                                        placeholder="password"/>
                                     <p style={{color: 'red'}}>
                                         {this.state.passwordErr}
                                     </p>

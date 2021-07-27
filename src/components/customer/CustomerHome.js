@@ -12,6 +12,8 @@ export default class CustomerHome extends Component {
     }
 
     logout = () => {
+        if(window.confirm("Are you sure to sign out ?") === false) return;
+
         localStorage.removeItem('accessToken');
         localStorage.removeItem('role');
         localStorage.removeItem('name');
@@ -22,7 +24,10 @@ export default class CustomerHome extends Component {
         return (
         <Router>
             <div>
-                <h1 style={{ color: 'white', backgroundColor: 'blue' }}>
+                <h1 style={{ color: 'white', 
+                             backgroundColor: 'blue',
+                             textAlign: 'center', 
+                             height: '60px'}}>
                     Customer Home Page
                 </h1>
                 <CustomerNavBar />

@@ -33,7 +33,7 @@ export default class AddCategoryForm extends Component {
                     alert("Name is empty");
                 }
                 else{
-                    alert("Error");
+                    alert("Error to add category");
                 }
             }
             else{
@@ -53,7 +53,7 @@ export default class AddCategoryForm extends Component {
                     <Container>
                         <Row xs="4" className="mb-4">
                             <Col>
-                                <Label for="name">Name</Label>
+                                <Label for="name"><b>Name</b></Label>
                             </Col>
                             <Col>
                                 <Input type="text" name="name" id="name" placeholder="name" />
@@ -61,7 +61,7 @@ export default class AddCategoryForm extends Component {
                         </Row>
                         <Row xs="4" className="mb-4">
                             <Col>
-                                <Label for="description">Description</Label>
+                                <Label for="description"><b>Description</b></Label>
                             </Col>
                             <Col>
                                 <Input type="text" name="description" id="description"
