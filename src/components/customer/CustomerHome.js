@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import CustomerNavBar from './CustomerNavBar';
 import HomePage from './HomePage';
-import Cart from './Cart';
+import Cart from './cart/Cart';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 export default class CustomerHome extends Component {

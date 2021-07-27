@@ -349,6 +349,9 @@ export default class HomePage extends Component {
                 else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
                     alert("Product is disabled");
                 }
+                else if (err.response.data.message === 'QUANTITY_GREATER_THAN_AVAILABLE') {
+                    alert("Quantity is greater than available");
+                }
                 else {
                     alert("Error - try again");
                 }
