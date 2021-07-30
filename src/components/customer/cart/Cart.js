@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import {
     Container, Row, Col, Button,
     Card, CardImg, CardBody, CardTitle, CardSubtitle, CardText,
-    Modal, ModalHeader, ModalBody, ModalFooter, Form, Input
+    Modal, ModalHeader, ModalBody, ModalFooter, Form, Input, Alert
 } from 'reactstrap';
 
 export default class Cart extends Component {
@@ -18,13 +18,23 @@ export default class Cart extends Component {
             totalPrice: 0,
             totalQuantity: 0,
 
+            modalDeleteAll: false,
             modalDelete: false,
             cartId: '',
             productName: '',
 
             modalUpdate: false,
             productItem: {},
-            quantity: 0
+            quantity: 0,
+
+            isUpdateFail: false,
+            messageUpdateFail: '',
+
+            isDeleteFail: false,
+            messageDeleteFail: '',
+
+            isLoadFail: false,
+            messageLoadFail: '',
         };
     }
 
@@ -55,18 +65,19 @@ export default class Cart extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        alert("Account not found");
+                        this.setState({messageLoadFail: 'Account not found.'});
                     }
                     else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                        alert("Account is disabled");
+                        this.setState({messageLoadFail: 'Account is disabled.'});
                     }
                     else {
-                        alert("Error - try again");
+                        this.setState({messageLoadFail: 'Error to load cart.'});
                     }
                 }
                 else {
-                    alert("Fail to load cart!");
+                    this.setState({messageLoadFail: 'Fail to load cart.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
@@ -121,7 +132,8 @@ export default class Cart extends Component {
         this.setState({
             modalDelete: !this.state.modalDelete,
             cartId: '',
-            productName: ''
+            productName: '',
+            isDeleteFail: false
         })
     }
 
@@ -129,7 +141,8 @@ export default class Cart extends Component {
         this.setState({
             modalUpdate: !this.state.modalUpdate,
             productItem: {},
-            quantity: 0
+            quantity: 0,
+            isUpdateFail: false
         })
     }
 
@@ -185,7 +198,6 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    alert(response.data);
                     this.toggleDelete();
                     this.loadCart();
                 }
@@ -193,28 +205,33 @@ export default class Cart extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'CART_NOT_FOUND') {
-                        alert("Item not found in cart!");
+                        this.setState({messageDeleteFail: 'Item not found in cart.'});
                     }
                     else if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        alert("Account not found");
+                        this.setState({messageDeleteFail: 'Account not found.'});
                     }
                     else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                        alert("Account is disabled");
+                        this.setState({messageDeleteFail: 'Account is disabled.'});
                     }
                     else {
-                        alert("Error to delete");
+                        this.setState({messageDeleteFail: 'Error to delete item in cart'});
                     }
                 }
                 else {
-                    alert("Fail to delete!")
+                    this.setState({messageDeleteFail: 'Fail to delete item in cart'});
                 }
+                this.setState({isDeleteFail: true});
             })
     }
 
+    toggleDeleteAll() {
+        this.setState({
+            modalDeleteAll: !this.state.modalDeleteAll,
+            isDeleteFail: false
+        })
+    }
+
     handleDeleteAll() {
-
-        if (window.confirm("Sure to delete all items in cart ?") === false) return;
-
         axios.delete('http://localhost:8080/customer/cart/all',
             {
                 data: {
@@ -227,28 +244,29 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    alert(response.data);
+                    this.toggleDeleteAll();
                     this.loadCart();
                 }
             })
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        alert("Account not found");
+                        this.setState({messageDeleteFail: 'Account not found.'});
                     }
                     else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                        alert("Account is disabled");
+                        this.setState({messageDeleteFail: 'Account is disabled.'});
                     }
                     else if (err.response.data.message === 'NO_ITEM_IN_CART') {
-                        alert("No item in cart");
+                        this.setState({messageDeleteFail: 'No item in cart.'});
                     }
                     else {
-                        alert("Error to delete all");
+                        this.setState({messageDeleteFail: 'Error to delete all items.'});
                     }
                 }
                 else {
-                    alert("Fail to delete all!");
+                    this.setState({messageDeleteFail: 'Fail to delete all items.'});
                 }
+                this.setState({isDeleteFail: true});
             })
     }
 
@@ -272,41 +290,42 @@ export default class Cart extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                alert(response.data);
                 this.toggleUpdate();
                 this.loadCart();
             }
         })
         .catch(err => {
             if (err.response) {
-                if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                    alert("Account not found");
-                }
-                else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                    alert("Account is disabled");
-                }
-                else if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
-                    alert("Product not found");
-                }
-                else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
-                    alert("Product is disabled");
-                }
-                else if (err.response.data.message === 'CART_NOT_FOUND') {
-                    alert("Item not found in cart");
-                }
-                else if (err.response.data.message === 'QUANTITY_LESS_THAN_ZERO') {
-                    alert("Quantity must be > 0");
-                }
-                else if (err.response.data.message === 'QUANTITY_GREATER_THAN_AVAILABLE') {
-                    alert("Quantity is greater than available");
-                }
-                else {
-                    alert("Error to update quantity");
+                switch (err.response.data.message) {
+                    case 'ACCOUNT_NOT_FOUND':
+                        this.setState({messageUpdateFail: 'Account not found.'});
+                        break;
+                    case 'ACCOUNT_IS_DISABLED':
+                        this.setState({messageUpdateFail: 'Account is disabled.'});
+                        break;
+                    case 'PRODUCT_NOT_FOUND':
+                        this.setState({messageUpdateFail: 'Product not found.'});
+                        break;
+                    case 'PRODUCT_IS_DISABLED':
+                        this.setState({messageUpdateFail: 'Product is disabled.'});
+                        break;
+                    case 'CART_NOT_FOUND':
+                        this.setState({messageUpdateFail: 'Item not found in cart'});
+                        break;
+                    case 'QUANTITY_LESS_THAN_ZERO':
+                        this.setState({messageUpdateFail: 'Quantity must be > 0'});
+                        break;
+                    case 'QUANTITY_GREATER_THAN_AVAILABLE':
+                        this.setState({messageUpdateFail: 'Quantity is greater than available'});
+                        break;
+                    default: 
+                        this.setState({messageUpdateFail: 'Error to update quantity.'});
                 }
             }
             else {
-                alert("Fail to update quantity");
+                this.setState({messageUpdateFail: 'Fail to update quantity.'});
             }
+            this.setState({isUpdateFail: true});
         })
     }
 
@@ -318,6 +337,16 @@ export default class Cart extends Component {
                 </h2>
 
                 <Container>
+                    <Row>
+                        <Col sm="12" md={{ size: 6, offset: 3 }}>
+                            {
+                                this.state.isLoadFail &&
+                                <Alert color="danger">
+                                    {this.state.messageLoadFail}
+                                </Alert>
+                            }
+                        </Col>
+                    </Row>
                     <Row xs="4" className="mb-4">
                         <Col>
                             <h4>Total Items: {this.state.totalItems}</h4>
@@ -333,7 +362,7 @@ export default class Cart extends Component {
                                 this.state.totalItems > 0 &&
                                 <div>
                                     <Button color="danger"
-                                        onClick={() => this.handleDeleteAll()}>
+                                        onClick={() => this.toggleDeleteAll()}>
                                         Delete All
                                     </Button>
                                 </div>
@@ -390,10 +419,34 @@ export default class Cart extends Component {
                     </ModalHeader>
                     <ModalBody>
                         Sure to delete item: <b>{this.state.productName}</b> ?
+                        {
+                            this.state.isDeleteFail &&
+                            <Alert color="danger">
+                                {this.state.messageDeleteFail}
+                            </Alert>
+                        }
                     </ModalBody>
                     <ModalFooter>
                         <Button color="danger" onClick={() => this.handleDelete()}>Delete</Button>
                         <Button color="primary" onClick={() => this.toggleDelete()}>Cancel</Button>
+                    </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.modalDeleteAll}>
+                    <ModalHeader>
+                        Notice
+                    </ModalHeader>
+                    <ModalBody>
+                        Sure to delete all items ?
+                        {
+                            this.state.isDeleteFail &&
+                            <Alert color="danger">
+                                {this.state.messageDeleteFail}
+                            </Alert>
+                        }
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" onClick={() => this.handleDeleteAll()}>Delete All</Button>
+                        <Button color="primary" onClick={() => this.toggleDeleteAll()}>Cancel</Button>
                     </ModalFooter>
                 </Modal>
 
@@ -436,7 +489,7 @@ export default class Cart extends Component {
                         </p>
                         <Container>
                             <Form onSubmit={(e) => this.handleUpdate(e)}>
-                                <Row>
+                                <Row className="mb-4">
                                     <Col xs="3">
                                         <span style={{ fontSize: '20px', marginRight: '15px' }}>
                                             <b>Quantity:</b>
@@ -452,6 +505,14 @@ export default class Cart extends Component {
                                             Update
                                         </Button>
                                     </Col>
+                                </Row>
+                                <Row xs="2">
+                                    {
+                                        this.state.isUpdateFail && 
+                                        <Alert color="danger">
+                                            {this.state.messageUpdateFail}
+                                        </Alert>
+                                    }
                                 </Row>
                             </Form>
                         </Container>

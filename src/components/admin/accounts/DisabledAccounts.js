@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Button, Table, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, Table, Modal, 
+    ModalHeader, ModalBody, ModalFooter, Alert,
+    Container, Row, Col
+} from 'reactstrap';
 
 export default class DisabledAccounts extends Component {
 
@@ -11,7 +14,13 @@ export default class DisabledAccounts extends Component {
             pageList: [],
 
             modal: false,
-            username: ''
+            username: '',
+
+            isLoadFail: false,
+            messageLoadFail: '',
+
+            isHandleFail: false,
+            messageHandleFail: '',
         };
     }
 
@@ -25,20 +34,25 @@ export default class DisabledAccounts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        accountList: response.data.accountDTOList
-                    })
-                    this.handlePageList(response);
+                    if(response.data.successCode === 'LOAD_ACCOUNT_SUCCESS'){
+                        this.setState({
+                            accountList: response.data.datas.accountDTOList
+                        })
+                        this.handlePageList(response);
+                    }
                 }
             })
             .catch(() => {
-                alert("Fail to load data!");
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to load disabled accounts.'
+                })
             })
     }
 
     handlePageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -55,28 +69,36 @@ export default class DisabledAccounts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        accountList: response.data.accountDTOList
-                    })
+                    if(response.data.successCode === 'LOAD_ACCOUNT_SUCCESS'){
+                        this.setState({
+                            accountList: response.data.datas.accountDTOList,
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(err => {
                 if(err.response){
                     if(err.response.data.message === 'PAGE_LESS_THAN_ONE'){
-                        alert("Page must be from 1 !");
+                        this.setState({messageLoadFail: 'Page must be from 1.'});
                     }
                     else{
-                        alert("Error to change page !");
+                        this.setState({messageLoadFail: 'Error to change page.'});
                     }
                 }
                 else{
-                    alert("Fail to change page !");
+                    this.setState({messageLoadFail: 'Fail to change page.'});
                 }
+                this.setState({ isLoadFail: true });
             })
     }
 
     toggle() {
-        this.setState({ modal: !this.state.modal })
+        this.setState({ 
+            modal: !this.state.modal,
+            username: '',
+            isHandleFail: false 
+        })
     }
 
     toggleButton(usernameValue) {
@@ -95,31 +117,31 @@ export default class DisabledAccounts extends Component {
             })
             .then(response => {
                 if (response.status === 200) {
-                    alert(response.data);
-
-                    this.toggle();
-                    this.loadData();
-                    this.setState({ username: '' });
+                    if(response.data.successCode === 'RESTORE_ACCOUNT_SUCCESS'){
+                        this.toggle();
+                        this.loadData();
+                    }
                 }
             })
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        alert("Account not found !");
+                        this.setState({messageHandleFail: 'Account not found.'});
                     }
                     else if (err.response.data.message === 'ACCOUNT_NOT_BELONG_TO_CUSTOMER') {
-                        alert("Account not belong to customer !");
+                        this.setState({messageHandleFail: 'Account not belong to customer.'});
                     }
                     else if (err.response.data.message === 'ACCOUNT_ACTIVE') {
-                        alert("Account already active !");
+                        this.setState({messageHandleFail: 'Account already active.'});
                     }
                     else {
-                        alert("Error to restore !");
+                        this.setState({messageHandleFail: 'Error to restore account.'});
                     }
                 }
                 else {
-                    alert("Fail to restore !");
+                    this.setState({messageHandleFail: 'Fail to restore account.'});
                 }
+                this.setState({ isHandleFail: true });
             })
     }
 
@@ -129,6 +151,18 @@ export default class DisabledAccounts extends Component {
                 <h2 style={{ textAlign: 'center' }}>
                     Disabled Accounts
                 </h2>
+                <Container>
+                    <Row>
+                        <Col sm="12" md={{ size: 6, offset: 3 }}>
+                            {
+                                this.state.isLoadFail && 
+                                <Alert color="danger">
+                                    {this.state.messageLoadFail}
+                                </Alert>
+                            }
+                        </Col>
+                    </Row>
+                </Container>
                 <br />
                 <Table hover>
                     <thead>
@@ -167,6 +201,12 @@ export default class DisabledAccounts extends Component {
                     <ModalHeader toggle={() => this.toggle()}>Notice</ModalHeader>
                     <ModalBody>
                         Are you sure to restore account: <b>{this.state.username}</b> ?
+                        {
+                            this.state.isHandleFail &&
+                            <Alert color="danger">
+                                {this.state.messageHandleFail}
+                            </Alert>
+                        }
                     </ModalBody>
                     <ModalFooter>
                         <Button color="success" onClick={() => this.handleRestore()}>Restore</Button>

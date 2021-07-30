@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Table } from 'reactstrap';
 import axios from 'axios';
-import { Button } from 'reactstrap';
+import { Button, Container, Row, Col, Alert } from 'reactstrap';
 
 
 export default class AdminAccounts extends Component {
@@ -10,7 +10,10 @@ export default class AdminAccounts extends Component {
         super(props);
         this.state = {
             accountList: [],
-            pageList: []
+            pageList: [],
+
+            isLoadFail: false,
+            messageLoadFail: '',
         };
     }
 
@@ -20,14 +23,19 @@ export default class AdminAccounts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        accountList: response.data.accountDTOList
-                    })
-                    this.handlePageList(response);    
+                    if(response.data.successCode === 'LOAD_ACCOUNT_SUCCESS'){
+                        this.setState({
+                            accountList: response.data.datas.accountDTOList
+                        })
+                        this.handlePageList(response);
+                    }    
                 }
             })
             .catch(() => {
-                alert("Fail to load data!");
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to load admin accounts.'
+                })
             })
     }
 
@@ -37,7 +45,7 @@ export default class AdminAccounts extends Component {
 
     handlePageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if(list.length > 1){
@@ -54,23 +62,27 @@ export default class AdminAccounts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        accountList: response.data.accountDTOList
-                    })
+                    if(response.data.successCode === 'LOAD_ACCOUNT_SUCCESS') {
+                        this.setState({
+                            accountList: response.data.datas.accountDTOList,
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(err => {
                 if(err.response){
                     if(err.response.data.message === 'PAGE_LESS_THAN_ONE'){
-                        alert("Page must be from 1 !");
+                        this.setState({messageLoadFail: 'Page must be from 1.'});
                     }
                     else{
-                        alert("Error to change page !");
+                        this.setState({messageLoadFail: 'Error to change page.'});
                     }
                 }
                 else{
-                    alert("Fail to change page !");
+                    this.setState({messageLoadFail: 'Fail to change page.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
@@ -80,6 +92,18 @@ export default class AdminAccounts extends Component {
                 <h2 style={{ textAlign: 'center' }}>
                     Admin Accounts
                 </h2>
+                <Container>
+                    <Row>
+                        <Col sm="12" md={{ size: 6, offset: 3 }}>
+                            {
+                                this.state.isLoadFail &&
+                                <Alert color="danger">
+                                    {this.state.messageLoadFail}
+                                </Alert>
+                            }
+                        </Col>
+                    </Row>
+                </Container>
                 <br />
                 <Table hover>
                     <thead>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Row, Col, Button, Form, Label, Input } from 'reactstrap';
+import { Container, Row, Col, Button, Form, Label, Input, FormGroup, Alert} from 'reactstrap';
 import axios from 'axios';
 
 export default class AddProductForm extends Component {
@@ -10,7 +10,12 @@ export default class AddProductForm extends Component {
             categoryList: [],
 
             imageSelected: '',
-            imageUrl: ''
+            imageUrl: '',
+
+            isFail: false,
+            messageFail: '',
+
+            isSuccess: false,
         };
     }
 
@@ -33,11 +38,19 @@ export default class AddProductForm extends Component {
                 }
             })
             .catch(() => {
-                alert("Fail to upload image!");
+                this.setState({
+                    isFail: true,
+                    messageFail: 'Fail to upload image.',
+                    isSuccess: false
+                })
             })
         }
         else{
-            alert('Please select a image before upload!');
+            this.setState({
+                isFail: true,
+                messageFail: 'Please select a image before upload.',
+                isSuccess: false
+            })
         }
     }
 
@@ -50,8 +63,12 @@ export default class AddProductForm extends Component {
                     this.setState({ categoryList: response.data })
                 }
             })
-            .catch(err => {
-                console.log(err);
+            .catch(() => {
+                this.setState({
+                    isFail: true,
+                    messageFail: 'Fail to load category.',
+                    isSuccess: false
+                })
             })
     }
 
@@ -72,36 +89,44 @@ export default class AddProductForm extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                alert('Success to add product');
+                this.setState({
+                    isSuccess: true,
+                    isFail: false
+                })
             }
         })
         .catch(err => {
             if(err.response){
-                if(err.response.data.message === 'CATEGORY_NOT_FOUND'){
-                    alert("Category not found");
-                }
-                else if(err.response.data.message === 'CATEGORY_IS_DISABLED'){
-                    alert("Category is disabled");
-                }
-                else if(err.response.data.message === 'NAME_IS_EMPTY'){
-                    alert("Name is empty");
-                }
-                else if(err.response.data.message === 'IMAGEURL_IS_EMPTY'){
-                    alert("Image url is empty");
-                }
-                else if(err.response.data.message === 'PRICE_LESS_THAN_ZERO'){
-                    alert("Price must be > 0");
-                }
-                else if(err.response.data.message === 'QUANTITY_LESS_THAN_ZERO'){
-                    alert("Quantity must be > 0");
-                }
-                else{
-                    alert("Error");
+                switch (err.response.data.message) {
+                    case 'CATEGORY_NOT_FOUND':
+                        this.setState({ messageFail: 'Category not found.'});
+                        break;
+                    case 'CATEGORY_IS_DISABLED':
+                        this.setState({ messageFail: 'Category is disabled.'});
+                        break;
+                    case 'NAME_IS_EMPTY':
+                        this.setState({ messageFail: 'Name is empty.'});
+                        break;
+                    case 'IMAGEURL_IS_EMPTY':
+                        this.setState({ messageFail: 'Image URL is empty.'});
+                        break;
+                    case 'PRICE_LESS_THAN_ZERO':
+                        this.setState({ messageFail: 'Price must be > 0.'});
+                        break;
+                    case 'QUANTITY_LESS_THAN_ZERO':
+                        this.setState({ messageFail: 'Quantity must be > 0.'});
+                        break;
+                    default:
+                        this.setState({ messageFail: 'Error to add product.'})
                 }
             }
             else{
-                alert("Fail to add product!");
+                this.setState({ messageFail: 'Fail to add category.'})
             }
+            this.setState({
+                isFail: true,
+                isSuccess: false
+            })
         })
     }
 
@@ -114,51 +139,57 @@ export default class AddProductForm extends Component {
                 <br/>
                 <Form onSubmit={(e) => this.handleAdd(e)}>
                     <Container>
-                        <Row xs="4" className="mb-4">
+                        <Row xs="2">
                             <Col>
-                                <Label for="name">Name</Label>
-                            </Col>
-                            <Col>
-                                <Input type="text" name="name" id="name"
-                                    placeholder="name"/>
-                            </Col>
-                        </Row>
-                        <Row xs="4" className="mb-4">
-                            <Col>
-                                <Label for="price">Price</Label>
-                            </Col>
-                            <Col>
-                                <Input type="text" name="price" id="price"
-                                    placeholder="price"/>
+                                <FormGroup className="mb-4">
+                                    <Label for="name" className="mr-sm-2"><b>Name</b></Label>
+                                    <Input type="text" name="name" id="name" />
+                                    <p>
+                                        <i>*Not empty.</i>
+                                    </p>
+                                </FormGroup>
                             </Col>
                         </Row>
-                        <Row xs="4" className="mb-4">
+                        <Row xs="2">
                             <Col>
-                                <Label for="quantity">Quantity</Label>
-                            </Col>
-                            <Col>
-                                <Input type="number" name="quantity" id="quantity"
-                                    placeholder="quantity"/>
-                            </Col>
-                        </Row>
-                        <Row xs="4" className="mb-4">
-                            <Col>
-                                <Label for="description">Description</Label>
-                            </Col>
-                            <Col>
-                                <Input type="text" name="description" id="description"
-                                    placeholder="description - can be blank"/>   
+                                <FormGroup className="mb-4">
+                                    <Label for="price" className="mr-sm-2"><b>Price</b></Label>
+                                    <Input type="text" name="price" id="price" />
+                                    <p>
+                                        <i>*Price must be greater 0.</i>
+                                    </p>
+                                </FormGroup>
                             </Col>
                         </Row>
-                        <Row xs="4" className="mb-4">
+                        <Row xs="2">
                             <Col>
-                                <Label for="image">Image URL</Label>
+                                <FormGroup className="mb-4">
+                                    <Label for="quantity" className="mr-sm-2"><b>Quantity</b></Label>
+                                    <Input type="number" name="quantity" id="quantity" />
+                                    <p>
+                                        <i>*Quantity must be greater 0.</i>
+                                    </p>
+                                </FormGroup>
                             </Col>
+                        </Row>
+                        <Row xs="2">
                             <Col>
-                                <Input type="text" value={this.state.imageUrl} readOnly 
-                                    placeholder="Choose image and upload"/>    
+                                <FormGroup className="mb-4">
+                                    <Label for="description" className="mr-sm-2"><b>Description</b></Label>
+                                    <Input type="text" name="description" id="description" />
+                                    <p>
+                                        <i>*Can be blank.</i>
+                                    </p>
+                                </FormGroup>
                             </Col>
+                        </Row>
+                        <Row xs="2" className="mb-4">
                             <Col>
+                                <FormGroup>
+                                    <Label for="image" className="mr-sm-2"><b>Image URL</b></Label>
+                                    <Input type="text" name="image" id="image" 
+                                           value={this.state.imageUrl} placeholder="Choose a file and upload" readOnly/>
+                                </FormGroup>
                                 <Input type="file" className="mb-2" accept="image/*"
                                     onChange={(e) => this.setState({imageSelected: e.target.files[0]})}/>
                                 <Button onClick={() => this.uploadImage()}>Upload</Button>
@@ -166,7 +197,7 @@ export default class AddProductForm extends Component {
                         </Row>
                         <Row xs="4" className="mb-4">
                             <Col>
-                                <Label for="category">Category</Label>
+                                <Label for="category"><b>Category</b></Label>
                             </Col>
                             <Col>
                                 <select style={{height: '40px', width: '100px'}} id="category" name="category">
@@ -178,6 +209,22 @@ export default class AddProductForm extends Component {
                                         )
                                     })}
                                 </select>
+                            </Col>
+                        </Row>
+                        <Row xs="2">
+                            <Col>
+                                {
+                                    this.state.isFail && 
+                                    <Alert color="danger">
+                                        {this.state.messageFail}
+                                    </Alert>
+                                }
+                                {
+                                    this.state.isSuccess && 
+                                    <Alert color="success">
+                                        Success to add product.
+                                    </Alert>
+                                }
                             </Col>
                         </Row>
                         <Button color="primary" className="mb-4">Add Product</Button>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Row, Col, Button, Form, Label, Input } from 'reactstrap';
+import { Container, Row, Col, Button, Form, Label, Input, Alert } from 'reactstrap';
 import axios from 'axios';
 
 export default class UpdateProductForm extends Component {
@@ -15,7 +15,13 @@ export default class UpdateProductForm extends Component {
             categoryId: 1,
             categoryList: [],
 
-            imageSelected: ''
+            imageSelected: '',
+
+            isUpdateFail: false,
+            messageUpdateFail: '',
+
+            isLoadFail: false,
+            messageLoadFail: '',
         };
     }
 
@@ -33,8 +39,11 @@ export default class UpdateProductForm extends Component {
                     this.setState({ categoryList: response.data })
                 }
             })
-            .catch(err => {
-                console.log(err);
+            .catch(() => {
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to load category.'
+                })
             })
     }
 
@@ -59,18 +68,19 @@ export default class UpdateProductForm extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
-                        alert("Product not found");
+                        this.setState({messageLoadFail: 'Product not found.'});
                     }
                     else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
-                        alert("Product is disabled");
+                        this.setState({messageLoadFail: 'Product is disabled.'});
                     }
                     else {
-                        alert("Error");
+                        this.setState({messageLoadFail: 'Error to load product.'});
                     }
                 }
                 else {
-                    alert("Fail to load data!");
+                    this.setState({messageLoadFail: 'Fail to load product.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
@@ -84,16 +94,23 @@ export default class UpdateProductForm extends Component {
             .then((response) => {
                 if(response.status === 200) {
                     this.setState({
-                        imageUrl: response.data.url
+                        imageUrl: response.data.url,
+                        isUpdateFail: false
                     })
                 }
             })
             .catch(() => {
-                alert("Fail to upload image!");
+                this.setState({
+                    isUpdateFail: true,
+                    messageUpdateFail: 'Fail to upload image.'
+                })
             })
         }
         else{
-            alert('Please select a image before upload!');
+            this.setState({
+                isUpdateFail: true,
+                messageUpdateFail: 'Please choose image and upload.'
+            })
         }
     }
 
@@ -114,46 +131,47 @@ export default class UpdateProductForm extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    alert('Success to update product!');
                     this.props.onUpdate();
                 }
             })
             .catch(err => {
                 if (err.response) {
-                    if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
-                        alert("Product not found");
-                    }
-                    else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
-                        alert("Product is disabled");
-                    }
-                    else if (err.response.data.message === 'CATEGORY_NOT_FOUND') {
-                        alert("Category not found");
-                    }
-                    else if (err.response.data.message === 'CATEGORY_IS_DISABLED') {
-                        alert("Category is disabled");
-                    }
-                    else if (err.response.data.message === 'NAME_IS_EMPTY') {
-                        alert("Name is empty");
-                    }
-                    else if (err.response.data.message === 'IMAGEURL_IS_EMPTY') {
-                        alert("Image url is empty");
-                    }
-                    else if (err.response.data.message === 'DESCRIPTION_IS_EMPTY') {
-                        alert("Description is empty");
-                    }
-                    else if (err.response.data.message === 'PRICE_LESS_THAN_ZERO') {
-                        alert("Price must be > 0");
-                    }
-                    else if (err.response.data.message === 'QUANTITY_LESS_THAN_ZERO') {
-                        alert("Quantity must be > 0");
-                    }
-                    else {
-                        alert("Error");
+                    switch (err.response.data.message) {
+                        case 'PRODUCT_NOT_FOUND':
+                            this.setState({messageUpdateFail: 'Product not found.'});
+                            break;
+                        case 'PRODUCT_IS_DISABLED':
+                            this.setState({messageUpdateFail: 'Product is disabled.'});
+                            break;
+                        case 'CATEGORY_NOT_FOUND':
+                            this.setState({messageUpdateFail: 'Category not found.'});
+                            break;
+                        case 'CATEGORY_IS_DISABLED':
+                            this.setState({messageUpdateFail: 'Category is disabled.'});
+                            break;
+                        case 'NAME_IS_EMPTY':
+                            this.setState({messageUpdateFail: 'Name is empty.'});
+                            break;
+                        case 'IMAGEURL_IS_EMPTY':
+                            this.setState({messageUpdateFail: 'Image url is empty.'});
+                            break;
+                        case 'DESCRIPTION_IS_EMPTY':
+                            this.setState({messageUpdateFail: 'Description is empty.'});
+                            break;
+                        case 'PRICE_LESS_THAN_ZERO':
+                            this.setState({messageUpdateFail: 'Price must be > 0.'});
+                            break;
+                        case 'QUANTITY_LESS_THAN_ZERO':
+                            this.setState({messageUpdateFail: 'Quantity must be > 0.'});
+                            break;
+                        default: 
+                            this.setState({messageUpdateFail: 'Error to update product.'});     
                     }
                 }
                 else {
-                    alert("Fail to update product!");
+                    this.setState({messageUpdateFail: 'Fail to update product.'});  
                 }
+                this.setState({isUpdateFail: true});
             })
     }
 
@@ -166,6 +184,14 @@ export default class UpdateProductForm extends Component {
             <div>
                 <Form onSubmit={(e) => this.handleUpdate(e)}>
                     <Container>
+                        <Row xs="2">
+                            {
+                                this.state.isLoadFail &&
+                                <Alert color="danger">
+                                    {this.state.messageLoadFail}
+                                </Alert>
+                            }
+                        </Row>
                         <Row xs="3" className="mb-4">
                             <Col>
                                 <Label for="name">Name</Label>
@@ -243,6 +269,14 @@ export default class UpdateProductForm extends Component {
                                     })}
                                 </select>
                             </Col>
+                        </Row>
+                        <Row xs="2">
+                            {
+                                this.state.isUpdateFail &&
+                                <Alert color="danger">
+                                    {this.state.messageUpdateFail}
+                                </Alert>
+                            }
                         </Row>
                         <Button color="warning">Update</Button>
                     </Container>

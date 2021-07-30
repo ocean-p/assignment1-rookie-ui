@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import { Button, Form, FormGroup, Input, Container, Row, Col } from 'reactstrap';
+import {
+    Button, Form, FormGroup, Input,
+    Container, Row, Col, Alert
+} from 'reactstrap';
 import axios from 'axios';
 
 export default class Login extends Component {
@@ -7,27 +10,28 @@ export default class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            usernameErr: '', 
-            passwordErr: ''
+            usernameErr: '',
+            passwordErr: '',
+            isFail: false
         };
     }
 
     validate(e) {
         let check = true;
-        if(e.target.username.value === ''){
+        if (e.target.username.value === '') {
             check = false;
-            this.setState({usernameErr: 'Please input username'})
+            this.setState({ usernameErr: 'Please input username' })
         }
-        else{
-            this.setState({usernameErr: ''})
+        else {
+            this.setState({ usernameErr: '' })
         }
 
-        if(e.target.password.value === ''){
+        if (e.target.password.value === '') {
             check = false;
-            this.setState({passwordErr: 'Please input password'})
+            this.setState({ passwordErr: 'Please input password' })
         }
-        else{
-            this.setState({passwordErr: ''})
+        else {
+            this.setState({ passwordErr: '' })
         }
 
         return check;
@@ -36,7 +40,7 @@ export default class Login extends Component {
     handleSignin(e) {
         e.preventDefault();
 
-        if(this.validate(e) === false) return;
+        if (this.validate(e) === false) return;
 
         axios.post('http://localhost:8080/signin', {
             username: e.target.username.value,
@@ -51,7 +55,9 @@ export default class Login extends Component {
                 }
             })
             .catch(() => {
-                alert("Fail to login!");
+                this.setState({
+                    isFail: true
+                })
             })
     }
 
@@ -60,7 +66,7 @@ export default class Login extends Component {
             <div>
                 <h1 style={{
                     textAlign: 'center',
-                    backgroundColor: 'green', 
+                    backgroundColor: 'green',
                     color: 'white',
                     height: '60px',
                     marginBottom: '20px'
@@ -71,10 +77,19 @@ export default class Login extends Component {
                     <Container>
                         <Row>
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                {this.state.isFail &&
+                                    <Alert color="danger">
+                                        Login Fail - username or password is not correct!
+                                    </Alert>
+                                }
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
                                 <FormGroup className="mb-4">
-                                    <Input type="text" name="username" id="username" 
-                                        placeholder="username"/>
-                                    <p style={{color: 'red'}}>
+                                    <Input type="text" name="username" id="username"
+                                        placeholder="username" />
+                                    <p style={{ color: 'red' }}>
                                         {this.state.usernameErr}
                                     </p>
                                 </FormGroup>
@@ -83,9 +98,9 @@ export default class Login extends Component {
                         <Row>
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
                                 <FormGroup className="mb-4">
-                                    <Input type="password" name="password" id="password" 
-                                        placeholder="password"/>
-                                    <p style={{color: 'red'}}>
+                                    <Input type="password" name="password" id="password"
+                                        placeholder="password" />
+                                    <p style={{ color: 'red' }}>
                                         {this.state.passwordErr}
                                     </p>
                                 </FormGroup>

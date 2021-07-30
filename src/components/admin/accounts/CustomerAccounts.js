@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import {
     Button, Form, FormGroup, Input, Container, Row, Col, Table,
-    Modal, ModalHeader, ModalBody, ModalFooter
+    Modal, ModalHeader, ModalBody, ModalFooter, Alert
 } from 'reactstrap';
 import UpdateAccountForm from './UpdateAccountForm';
 
@@ -21,7 +21,13 @@ export default class CustomerAccounts extends Component {
             modal: false,
             username: '',
 
-            modalUpdate: false
+            modalUpdate: false,
+
+            isDeleteFail: false,
+            messageDeleteFail: '',
+
+            isLoadFail: false,
+            messageLoadFail: '',
         };
     }
 
@@ -35,20 +41,25 @@ export default class CustomerAccounts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        accountList: response.data.accountDTOList
-                    })
-                    this.handlePageList(response);
+                    if(response.data.successCode === 'LOAD_ACCOUNT_SUCCESS') {
+                        this.setState({
+                            accountList: response.data.datas.accountDTOList
+                        })
+                        this.handlePageList(response);
+                    }
                 }
             })
             .catch(() => {
-                alert("Fail to load customer accounts !");
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to load customer accounts.'
+                })
             })
     }
 
     handlePageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -65,23 +76,26 @@ export default class CustomerAccounts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        accountList: response.data.accountDTOList
-                    })
+                    if(response.data.successCode === 'LOAD_ACCOUNT_SUCCESS') {
+                        this.setState({
+                            accountList: response.data.datas.accountDTOList
+                        })
+                    }    
                 }
             })
             .catch(err => {
                 if(err.response){
                     if(err.response.data.message === 'PAGE_LESS_THAN_ONE'){
-                        alert("Page must be from 1 !");
+                        this.setState({messageLoadFail: 'Page must be from 1.'});
                     }
                     else{
-                        alert("Error to change page !");
+                        this.setState({messageLoadFail: 'Error to change page.'});
                     }
                 }
                 else {
-                    alert("Fail to change page !");
+                    this.setState({messageLoadFail: 'Fail to change page.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
@@ -93,35 +107,38 @@ export default class CustomerAccounts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        accountList: response.data.accountDTOList,
-                        isSearch: true
-                    }, () => {
-                        if (this.state.accountList.length === 0) {
-                            alert("No results.");
-                        }
-                    })
-                    this.handleSearchPageList(response);
+                    if(response.data.successCode === 'LOAD_ACCOUNT_SUCCESS'){
+                        this.setState({
+                            accountList: response.data.datas.accountDTOList,
+                            isSearch: true,
+                            isLoadFail: false
+                        })
+                        this.handleSearchPageList(response);
+                    }
                 }
             })
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
-                        alert("Not yet input anything!")
+                        this.setState({messageLoadFail: 'Not yet input anything.'});
                     }
                     else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                        alert("Number of page must be from 1!");
+                        this.setState({messageLoadFail: 'Number of page must be from 1.'});
+                    }
+                    else{
+                        this.setState({messageLoadFail: 'Error to search account.'});
                     }
                 }
                 else {
-                    alert("Fail to search!")
+                    this.setState({messageLoadFail: 'Fail to search account.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
     handleSearchPageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -138,40 +155,55 @@ export default class CustomerAccounts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        accountList: response.data.accountDTOList
-                    })
+                    if(response.data.successCode === 'LOAD_ACCOUNT_SUCCESS'){
+                        this.setState({
+                            accountList: response.data.datas.accountDTOList,
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
-                        alert("Not yet input anything!")
+                        this.setState({messageLoadFail: 'Not yet input anything.'});
                     }
                     else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                        alert("Number of page must be from 1!");
+                        this.setState({messageLoadFail: 'Number of page must be from 1.'});
+                    }
+                    else{
+                        this.setState({messageLoadFail: 'Error to change search page.'});
                     }
                 }
                 else {
-                    alert("Fail to change page!");
+                    this.setState({messageLoadFail: 'Fail to change search page.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
     refresh() {
-        this.loadData();
         this.setState({
             searchValue: '',
             isSearch: false,
+            isLoadFail: false,
         })
+        this.loadData();
     }
 
     toggle() {
-        this.setState({ modal: !this.state.modal })
+        this.setState({ 
+            modal: !this.state.modal,
+            username: '',
+            isDeleteFail: false 
+        })
     }
 
     toggleUpdate() {
-        this.setState({ modalUpdate: !this.state.modalUpdate })
+        this.setState({ 
+            modalUpdate: !this.state.modalUpdate,
+            username: '',
+        })
     }
 
     toggleButton(usernameValue) {
@@ -194,41 +226,41 @@ export default class CustomerAccounts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    alert(response.data);
-                    this.toggle();
-                    this.setState({ username: '' })
-                    if (this.state.isSearch === true) {
-                        this.changeSearchPage(1);
-                    }
-                    else {
-                        this.loadData();
-                    }
+                    if(response.data.successCode === 'DELETE_ACCOUNT_SUCCESS'){
+                        this.toggle();
+                        if (this.state.isSearch === true) {
+                            this.changeSearchPage(1);
+                        }
+                        else {
+                            this.loadData();
+                        }
+                    }    
                 }
             })
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        alert("Account not found !");
+                        this.setState({ messageDeleteFail: 'Account not found.'});
                     }
                     else if (err.response.data.message === 'ACCOUNT_NOT_BELONG_TO_CUSTOMER') {
-                        alert("Account not belong to customer !");
+                        this.setState({ messageDeleteFail: 'Account not belong to customer.'});
                     }
                     else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                        alert("Account is disabled !");
+                        this.setState({ messageDeleteFail: 'Account is disabled.'});
                     }
                     else {
-                        alert("Error to delete account !");
+                        this.setState({ messageDeleteFail: 'Error to delete account.'});
                     }
                 }
                 else {
-                    alert("Fail to delete account !");
+                    this.setState({ messageDeleteFail: 'Fail to delete account.'});
                 }
+                this.setState({ isDeleteFail: true });
             })
     }
 
     handleUpdate = () => {
         this.toggleUpdate();
-        this.setState({ username: '' })
         if (this.state.isSearch === true) {
             this.changeSearchPage(1);
         }
@@ -250,7 +282,7 @@ export default class CustomerAccounts extends Component {
                     <Container>
                         <Row>
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
-                                <FormGroup className="mb-2">
+                                <FormGroup className="mb-4">
                                     <Input type="text" name="searchvalue" id="searchvalue"
                                         placeholder="Search by username" />
                                 </FormGroup>
@@ -259,11 +291,27 @@ export default class CustomerAccounts extends Component {
                                 <Button color="primary">Find</Button>
                             </Col>
                         </Row>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                {
+                                    this.state.isLoadFail &&
+                                    <Alert color="danger">
+                                        {this.state.messageLoadFail}
+                                    </Alert>
+                                }
+                            </Col>
+                        </Row>
                     </Container>
                 </Form>
                 {this.state.isSearch === true && this.state.searchValue !== '' &&
                     <p style={{ textAlign: 'center', color: 'grey', fontSize: '20px' }}>
                         Search results: {this.state.searchValue}
+                    </p>
+                }
+                {
+                    this.state.accountList.length < 1 &&
+                    <p style={{ textAlign: 'center'}}>
+                        No results
                     </p>
                 }
                 <br />
@@ -309,6 +357,12 @@ export default class CustomerAccounts extends Component {
                     <ModalHeader toggle={() => this.toggle()}>Notice</ModalHeader>
                     <ModalBody>
                         Are you sure to delete account: <b>{this.state.username}</b> ?
+                        {
+                            this.state.isDeleteFail &&
+                            <Alert color="danger">
+                                {this.state.messageDeleteFail}
+                            </Alert>
+                        }
                     </ModalBody>
                     <ModalFooter>
                         <Button color="danger" onClick={() => this.handleDelete()}>Delete</Button>
@@ -329,7 +383,7 @@ export default class CustomerAccounts extends Component {
                 {this.state.isSearch === false &&
                     this.state.pageList.map((page, index) => {
                         return (
-                            <Button key={index} onClick={() => this.changePage(`${page}`)}>
+                            <Button key={index} className="mb-4" onClick={() => this.changePage(`${page}`)}>
                                 {page}
                             </Button>
                         )
@@ -338,7 +392,7 @@ export default class CustomerAccounts extends Component {
                 {this.state.isSearch === true &&
                     this.state.searchPageList.map((page, index) => {
                         return (
-                            <Button key={index} onClick={() => this.changeSearchPage(`${page}`)}>
+                            <Button key={index} className="mb-4" onClick={() => this.changeSearchPage(`${page}`)}>
                                 {page}
                             </Button>
                         )

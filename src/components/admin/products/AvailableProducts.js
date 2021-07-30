@@ -4,7 +4,7 @@ import {
     CardSubtitle, CardBody, Container, Row, Col,
     Form, FormGroup, Input, UncontrolledButtonDropdown,
     DropdownMenu, DropdownItem, DropdownToggle,
-    Modal, ModalHeader, ModalBody, ModalFooter
+    Modal, ModalHeader, ModalBody, ModalFooter, Alert
 } from 'reactstrap';
 import axios from 'axios';
 import UpdateProductForm from './UpdateProductForm'
@@ -31,7 +31,13 @@ export default class AvailableProducts extends Component {
             productId: '',
             productName: '',
 
-            modalUpdate: false
+            modalUpdate: false,
+
+            isDeleteFail: false,
+            messageDeleteFail: '',
+
+            isLoadFail: false,
+            messageLoadFail: '',
         };
     }
 
@@ -47,8 +53,11 @@ export default class AvailableProducts extends Component {
                     this.handlePageList(response);
                 }
             })
-            .catch(err => {
-                alert("Fail to load data!");
+            .catch(() => {
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to load available products.'
+                })
             })
     }
 
@@ -61,8 +70,11 @@ export default class AvailableProducts extends Component {
                     this.setState({ categoryList: response.data })
                 }
             })
-            .catch(err => {
-                console.log(err);
+            .catch(() => {
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to load categories.'
+                })
             })
     }
 
@@ -91,12 +103,16 @@ export default class AvailableProducts extends Component {
             .then(response => {
                 if (response.status === 200) {
                     this.setState({
-                        productList: response.data.productList
+                        productList: response.data.productList,
+                        isLoadFail: false
                     })
                 }
             })
-            .catch(err => {
-                alert("Fail to load data!");
+            .catch(() => {
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to change page.'
+                })
             })
     }
 
@@ -112,11 +128,8 @@ export default class AvailableProducts extends Component {
                     this.setState({
                         productList: response.data.productList,
                         isSearch: true,
-                        isCategory: false
-                    }, () => {
-                        if (this.state.productList.length === 0) {
-                            alert("No results");
-                        }
+                        isCategory: false,
+                        isLoadFail: false
                     })
                     this.handleSearchPageList(response);
                 }
@@ -124,15 +137,19 @@ export default class AvailableProducts extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
-                        alert("Not yet input anything!")
+                        this.setState({messageLoadFail: 'Not yet input anything.'});
                     }
                     else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                        alert("Number of page must be from 1!");
+                        this.setState({messageLoadFail: 'Number of page must be from 1.'});
+                    }
+                    else{
+                        this.setState({messageLoadFail: 'Error to search products by name.'});
                     }
                 }
                 else {
-                    alert("Fail to load data!")
+                    this.setState({messageLoadFail: 'Fail to search products by name.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
@@ -157,27 +174,31 @@ export default class AvailableProducts extends Component {
             .then(response => {
                 if (response.status === 200) {
                     this.setState({
-                        productList: response.data.productList
+                        productList: response.data.productList, 
+                        isLoadFail: false
                     })
                 }
             })
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
-                        alert("Not yet input anything!")
+                        this.setState({messageLoadFail: 'Not yet input anything.'});
                     }
                     else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                        alert("Number of page must be from 1!");
+                        this.setState({messageLoadFail: 'Number of page must be from 1.'});
+                    }
+                    else{
+                        this.setState({messageLoadFail: 'Error to change search page by name.'});
                     }
                 }
                 else {
-                    alert("Fail to load data!")
+                    this.setState({messageLoadFail: 'Fail to change search page by name.'})
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
     refresh() {
-        this.loadData();
         this.setState({
             searchValue: '',
             searchPageList: [],
@@ -186,8 +207,11 @@ export default class AvailableProducts extends Component {
             categoryName: '',
             categoryId: '',
             searchCategoryPageList: [],
-            isCategory: false
+            isCategory: false,
+
+            isLoadFail: false
         })
+        this.loadData();
     }
 
     handleSearchByCategoryPageList(response) {
@@ -213,11 +237,8 @@ export default class AvailableProducts extends Component {
                     this.setState({
                         productList: response.data.productList,
                         isCategory: true,
-                        isSearch: false
-                    }, () => {
-                        if (this.state.productList.length === 0) {
-                            alert("No results");
-                        }
+                        isSearch: false,
+                        isLoadFail: false
                     })
                     this.handleSearchByCategoryPageList(response);
                 }
@@ -225,18 +246,22 @@ export default class AvailableProducts extends Component {
             .catch(err => {
                 if (err.response != null) {
                     if (err.response.data.message === "CATEGORY_NOT_FOUND") {
-                        alert("Category not found");
+                        this.setState({messageLoadFail: 'Category not found.'});
                     }
                     else if (err.response.data.message === "CATEGORY_IS_DISABLED") {
-                        alert("Category was deleted");
+                        this.setState({messageLoadFail: 'Category was deleted.'});
                     }
                     else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                        alert("Number of page must be from 1!");
+                        this.setState({messageLoadFail: 'Number of page must be from 1.'});
+                    }
+                    else{
+                        this.setState({messageLoadFail: 'Error to search products by category.'});
                     }
                 }
                 else {
-                    alert("Fail to load data!")
+                    this.setState({messageLoadFail: 'Fail to search products by category.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
@@ -247,35 +272,48 @@ export default class AvailableProducts extends Component {
             .then(response => {
                 if (response.status === 200) {
                     this.setState({
-                        productList: response.data.productList
+                        productList: response.data.productList,
+                        isLoadFail: false
                     })
-
                 }
             })
             .catch(err => {
                 if (err.response != null) {
                     if (err.response.data.message === "CATEGORY_NOT_FOUND") {
-                        alert("Category not found");
+                        this.setState({messageLoadFail: 'Category not found.'});
                     }
                     else if (err.response.data.message === "CATEGORY_IS_DISABLED") {
-                        alert("Category was deleted");
+                        this.setState({messageLoadFail: 'Category was deleted.'});
                     }
                     else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                        alert("Number of page must be from 1!");
+                        this.setState({messageLoadFail: 'Number of page must be from 1.'});
+                    }
+                    else{
+                        this.setState({messageLoadFail: 'Error to change search page by category.'});
                     }
                 }
                 else {
-                    alert("Fail to load data!")
+                    this.setState({messageLoadFail: 'Fail to change search page by category.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
     toggle() {
-        this.setState({ modal: !this.state.modal })
+        this.setState({ 
+            modal: !this.state.modal,
+            productName: '',
+            productId: '',
+            isDeleteFail: false 
+        })
     }
 
     toggleUpdate() {
-        this.setState({ modalUpdate: !this.state.modalUpdate })
+        this.setState({ 
+            modalUpdate: !this.state.modalUpdate,
+            productName: '',
+            productId: ''
+        })
     }
 
     toggleButton(productIdValue, productNameValue) {
@@ -300,13 +338,7 @@ export default class AvailableProducts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    alert(response.data);
                     this.toggle();
-                    // this.refresh();
-                    this.setState({
-                        productId: '',
-                        productName: ''
-                    })
                     if (this.state.isSearch === true) {
                         this.changeSearchPage(1);
                     }
@@ -321,27 +353,24 @@ export default class AvailableProducts extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
-                        alert("Product not found");
+                        this.setState({messageDeleteFail: 'Product not found.'});
                     }
                     else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
-                        alert("Product is disabled");
+                        this.setState({messageDeleteFail: 'Product is disabled.'});
                     }
                     else {
-                        alert("Error");
+                        this.setState({messageDeleteFail: 'Error to delete product.'});
                     }
                 }
                 else {
-                    alert("Fail to delete!");
+                    this.setState({messageDeleteFail: 'Fail to delete product.'});
                 }
+                this.setState({ isDeleteFail: true });
             })
     }
 
     handleUpdate = () => {
         this.toggleUpdate();
-        this.setState({
-            productId: '',
-            productName: ''
-        })
         if (this.state.isSearch === true) {
             this.changeSearchPage(1);
         }
@@ -366,13 +395,23 @@ export default class AvailableProducts extends Component {
                     <Container>
                         <Row>
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
-                                <FormGroup className="mb-2">
+                                <FormGroup className="mb-4">
                                     <Input type="text" name="searchvalue" id="searchvalue"
                                         placeholder="Search by name" />
                                 </FormGroup>
                             </Col>
                             <Col sm={{ size: 1, offset: 1 }}>
                                 <Button color="primary">Find</Button>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                {
+                                    this.state.isLoadFail &&
+                                    <Alert color="danger">
+                                        {this.state.messageLoadFail}
+                                    </Alert>
+                                }
                             </Col>
                         </Row>
                     </Container>
@@ -404,6 +443,12 @@ export default class AvailableProducts extends Component {
                 {this.state.isCategory === true && this.state.categoryName !== '' &&
                     <p style={{ textAlign: 'center', color: 'grey', fontSize: '20px' }}>
                         Search by category: {this.state.categoryName}
+                    </p>
+                }
+                {
+                    this.state.productList.length < 1 &&
+                    <p style={{ textAlign: 'center'}}>
+                        No results
                     </p>
                 }
                 <Container>
@@ -475,6 +520,12 @@ export default class AvailableProducts extends Component {
                     <ModalBody>
                         Sure to delete product: <b>{this.state.productName}</b> -
                         id: <b>{this.state.productId}</b> ?
+                        {
+                            this.state.isDeleteFail &&
+                            <Alert color="danger">
+                                {this.state.messageDeleteFail}
+                            </Alert>
+                        }
                     </ModalBody>
                     <ModalFooter>
                         <Button color="danger" onClick={() => this.handleDelete()}>Delete</Button>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Row, Col, Button, Form, Label, Input } from 'reactstrap';
+import { Container, Row, Col, Button, Form, Label, Input, Alert } from 'reactstrap';
 import axios from 'axios';
 
 export default class UpdateCategoryForm extends Component {
@@ -8,7 +8,13 @@ export default class UpdateCategoryForm extends Component {
         super(props);
         this.state = {
             name: '',
-            description: ''
+            description: '',
+
+            isUpdateFail: false,
+            messageUpdateFail: '',
+
+            isLoadFail: false,
+            messageLoadFail: '',
         };
     }
 
@@ -31,18 +37,19 @@ export default class UpdateCategoryForm extends Component {
         .catch(err => {
             if(err.response){
                 if(err.response.data.message === 'CATEGORY_NOT_FOUND'){
-                    alert("Category not found");
+                    this.setState({messageLoadFail: 'Category not found.'});
                 }
                 else if(err.response.data.message === 'CATEGORY_IS_DISABLED'){
-                    alert("Category is disabled");
+                    this.setState({messageLoadFail: 'Category is disabled.'});
                 }
                 else{
-                    alert("Error");
+                    this.setState({messageLoadFail: 'Error to load category.'});
                 }
             }
             else{
-                alert("Fail to load data!");
+                this.setState({messageLoadFail: 'Fail to load category.'});
             }
+            this.setState({isLoadFail: true});
         })
     }
 
@@ -60,31 +67,31 @@ export default class UpdateCategoryForm extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                alert("Success to update category!");
                 this.props.onUpdate();
             }
         })
         .catch(err => {
             if(err.response){
                 if(err.response.data.message === 'CATEGORY_NOT_FOUND'){
-                    alert("Category not found");
+                    this.setState({messageUpdateFail: 'Category not found.'});
                 }
                 else if(err.response.data.message === 'CATEGORY_IS_DISABLED'){
-                    alert("Category is disabled");
+                    this.setState({messageUpdateFail: 'Category is disabled.'});
                 }
                 else if(err.response.data.message === 'NAME_IS_EMPTY'){
-                    alert("Name is empty");
+                    this.setState({messageUpdateFail: 'Name is empty.'});
                 }
                 else if(err.response.data.message === 'DESCRIPTION_IS_EMPTY'){
-                    alert("Description is empty");
+                    this.setState({messageUpdateFail: 'Description is empty.'});
                 }
                 else{
-                    alert("Error");
+                    this.setState({messageUpdateFail: 'Error to update category.'});
                 }
             }
             else{
-                alert("Fail to update category!");
+                this.setState({messageUpdateFail: 'Fail to update category.'});
             }
+            this.setState({isUpdateFail: true})
         })
     }
 
@@ -97,6 +104,14 @@ export default class UpdateCategoryForm extends Component {
             <div>
                 <Form onSubmit={(e) => this.handleUpdate(e)}>
                     <Container>
+                        <Row xs="2">
+                            {
+                                this.state.isLoadFail &&
+                                <Alert color="danger">
+                                    {this.state.messageLoadFail}
+                                </Alert>
+                            }
+                        </Row>
                         <Row xs="3" className="mb-4">
                             <Col>
                                 <Label for="name">Name</Label>
@@ -116,6 +131,14 @@ export default class UpdateCategoryForm extends Component {
                                     value={this.state.description} 
                                     onChange={(e) => this.handleChange(e, "description")}/>
                             </Col>
+                        </Row>
+                        <Row xs="2">
+                            {
+                                this.state.isUpdateFail &&
+                                <Alert color="danger">
+                                    {this.state.messageUpdateFail}
+                                </Alert>
+                            }
                         </Row>
                         <Button color="warning">Update</Button>
                     </Container>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Row, Col, Button, Form, Label, Input } from 'reactstrap';
+import { Container, Row, Col, Button, Form, Label, Input, FormGroup, Alert} from 'reactstrap';
 import axios from 'axios';
 
 export default class AddAccountForm extends Component {
@@ -7,7 +7,10 @@ export default class AddAccountForm extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            isFail: false,
+            messageFail: '',
 
+            isSuccess: false
         };
     }
 
@@ -28,110 +31,152 @@ export default class AddAccountForm extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    alert("Success to add account.");
+                    if(response.data.successCode === 'ADD_ACCOUNT_SUCCESS'){
+                        this.setState({
+                            isSuccess: true,
+                            isFail: false
+                        })
+                    }
                 }
             })
             .catch(err => {
                 if (err.response) {
                     switch (err.response.data.message) {
                         case 'USERNAME_NOT_CORRECT_FORMAT':
-                            alert("Username not correct format !");
+                            this.setState({ messageFail: 'Username is not correct format.'});
                             break;
                         case 'PASSWORD_NOT_CORRECT_FORMAT':
-                            alert("Password not correct format !");
+                            this.setState({ messageFail: 'Password is not correct format.'});
                             break;
                         case 'FULLNAME_IS_EMPTY':
-                            alert("Full name is empty !");
+                            this.setState({ messageFail: 'Full name is empty.'});
                             break;
                         case 'PHONE_NOT_CORRECT_FORMAT':
-                            alert("Phone not correct format !");
+                            this.setState({ messageFail: 'Phone is not correct format.'});
                             break;
                         case 'ADDRESS_IS_EMPTY':
-                            alert("Address is empty !");
+                            this.setState({ messageFail: 'Address is empty.'});
                             break;
                         case 'USERNAME_ALREADY_TAKEN':
-                            alert("Username already used !");
+                            this.setState({ messageFail: 'Username already taken.'});
                             break;
                         case 'ROLE_NOT_CORRECT':
-                            alert("Role Role must be customer or admin !");
+                            this.setState({ messageFail: 'Role must be admin or customer.'});
                             break;    
                         default:
-                            alert("Error to add account !");
+                            this.setState({ messageFail: 'Error to add account.'});
                     }
                 }
                 else {
-                    alert("Fail to add account!");
+                    this.setState({ messageFail: 'Fail to add account.'});
                 }
+                this.setState({
+                    isFail: true,
+                    isSuccess: false
+                });
             })
     }
 
     render() {
         return (
             <div>
-                <h2 style={{ marginLeft: '50px', 
-                             marginTop: '20px'}}>
+                <h2 style={{textAlign: 'center'}}>
                     Add Account Form
                 </h2>
                 <br />
                 <Form onSubmit={(e) => this.handleAdd(e)}>
                     <Container>
-                        <Row xs="4" className="mb-4">
-                            <Col>
-                                <Label for="username"><b>Username</b></Label>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                <FormGroup className="mb-4">
+                                    <Label for="username" className="mr-sm-2"><b>Username</b></Label>
+                                    <Input type="text" name="username" id="username" />
+                                    <p>
+                                        <i>*No special characters and space</i>
+                                    </p>   
+                                </FormGroup>
+                            </Col>          
+                        </Row>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                <FormGroup className="mb-4">
+                                    <Label for="password" className="mr-sm-2"><b>Password</b></Label>
+                                    <Input type="password" name="password" id="password" />
+                                    <p>
+                                        <i>*No special characters and space - Min: 6 / Max: 20</i>
+                                    </p>  
+                                </FormGroup>
+                            </Col>              
+                        </Row>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                <FormGroup className="mb-4">
+                                    <Label for="fullname" className="mr-sm-2"><b>Full name</b></Label>
+                                    <Input type="text" name="fullname" id="fullname" />
+                                    <p>
+                                        <i>*Not empty.</i>
+                                    </p>
+                                </FormGroup>
                             </Col>
-                            <Col>
-                                <Input type="text" name="username" id="usernamefield"
-                                    placeholder="No special characters and space" />
+                        </Row>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                <FormGroup className="mb-4">
+                                    <Label for="phone" className="mr-sm-2"><b>Phone</b></Label>
+                                    <Input type="number" name="phone" id="phone" />
+                                    <p>
+                                        <i>*Not empty - 10 or 11 numbers.</i>
+                                    </p>
+                                </FormGroup>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                <FormGroup className="mb-4">
+                                    <Label for="address" className="mr-sm-2"><b>Address</b></Label>
+                                    <Input type="text" name="address" id="address" />
+                                    <p>
+                                        <i>*Not empty.</i>
+                                    </p>
+                                    <p style={{ color: 'red' }}>
+                                        {this.state.addressErr}
+                                    </p>
+                                </FormGroup>
                             </Col>
                         </Row>
                         <Row xs="4" className="mb-4">
-                            <Col>
-                                <Label for="password"><b>Password</b></Label>
-                            </Col>
-                            <Col>
-                                <Input type="password" name="password" id="passwordfield"
-                                    placeholder="Min: 6 / Max: 20" />
-                            </Col>
-                        </Row>
-                        <Row xs="4" className="mb-4">
-                            <Col>
-                                <Label for="fullname"><b>Fullname</b></Label>
-                            </Col>
-                            <Col>
-                                <Input type="text" name="fullname" id="fullnamefield"
-                                    placeholder="Not empty" />
-                            </Col>
-                        </Row>
-                        <Row xs="4" className="mb-4">
-                            <Col>
-                                <Label for="phone"><b>Phone</b></Label>
-                            </Col>
-                            <Col>
-                                <Input type="number" name="phone" id="phonefield"
-                                    placeholder="Not empty - 10 or 11 numbers" />
-                            </Col>
-                        </Row>
-                        <Row xs="4" className="mb-4">
-                            <Col>
-                                <Label for="address"><b>Address</b></Label>
-                            </Col>
-                            <Col>
-                                <Input type="text" name="address" id="addressfield"
-                                    placeholder="Not empty" />
-                            </Col>
-                        </Row>
-                        <Row xs="4" className="mb-4">
+                            <Col></Col>
                             <Col>
                                 <Label for="role"><b>Role</b></Label>
                             </Col>
                             <Col>
-                                <select style={{ height: '30px' }} id="rolefield" name="role">
+                                <select style={{ height: '30px', width: '150px'}} id="rolefield" name="role">
                                     <option>customer</option>
                                     <option>admin</option>
                                 </select>
                             </Col>
                         </Row>
-                        <Button color="primary" className="mb-4">Add Account</Button>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                {
+                                    this.state.isFail &&
+                                    <Alert color="danger">
+                                        {this.state.messageFail}
+                                    </Alert>
+                                }
+                                {
+                                    this.state.isSuccess &&
+                                    <Alert color="success">
+                                        Success to add account.
+                                    </Alert>
+                                }
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                <Button color="primary" className="mb-4">Add Account</Button>
+                            </Col>    
+                        </Row>
                     </Container>
                 </Form>
             </div>

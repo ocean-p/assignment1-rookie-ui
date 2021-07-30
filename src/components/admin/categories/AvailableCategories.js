@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import {
     Button, Form, FormGroup, Input, Container, Row, Col, Table,
-    Modal, ModalHeader, ModalBody, ModalFooter
+    Modal, ModalHeader, ModalBody, ModalFooter, Alert
 } from 'reactstrap';
 import UpdateCategoryForm from './UpdateCategoryForm';
 
@@ -21,7 +21,13 @@ export default class AvailableCategories extends Component {
             categoryName: '',
             categoryId: '',
 
-            modalUpdate: false
+            modalUpdate: false,
+
+            isDeleteFail: false,
+            messageDeleteFail: '',
+
+            isLoadFail: false,
+            messageLoadFail: '',
         };
     }
 
@@ -38,7 +44,10 @@ export default class AvailableCategories extends Component {
                 }
             })
             .catch(() => {
-                alert("Fail to load data!");
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to load available categories.'
+                })
             })
     }
 
@@ -66,12 +75,16 @@ export default class AvailableCategories extends Component {
             .then(response => {
                 if (response.status === 200) {
                     this.setState({
-                        categoryList: response.data.categories
+                        categoryList: response.data.categories,
+                        isLoadFail: false
                     })
                 }
             })
             .catch(() => {
-                alert("Fail to change page!");
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to change page.'
+                })
             })
     }
 
@@ -85,11 +98,8 @@ export default class AvailableCategories extends Component {
                 if (response.status === 200) {
                     this.setState({
                         categoryList: response.data.categories,
-                        isSearch: true
-                    }, () => {
-                        if (this.state.categoryList.length === 0) {
-                            alert("No results");
-                        }
+                        isSearch: true,
+                        isLoadFail: false
                     })
                     this.handleSearchPageList(response);
                 }
@@ -97,15 +107,19 @@ export default class AvailableCategories extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
-                        alert("Not yet input anything!")
+                        this.setState({messageLoadFail: 'Not yet input anything.'});
                     }
                     else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                        alert("Number of page must be from 1!");
+                        this.setState({messageLoadFail: 'Number of page must be from 1.'});
+                    }
+                    else{
+                        this.setState({messageLoadFail: 'Error to search category.'});
                     }
                 }
                 else {
-                    alert("Fail to search!")
+                    this.setState({messageLoadFail: 'Fail to search category.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
@@ -129,39 +143,54 @@ export default class AvailableCategories extends Component {
             .then(response => {
                 if (response.status === 200) {
                     this.setState({
-                        categoryList: response.data.categories
+                        categoryList: response.data.categories,
+                        isLoadFail: false
                     })
                 }
             })
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
-                        alert("Not yet input anything!")
+                        this.setState({messageLoadFail: 'Not yet input anything.'});
                     }
                     else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                        alert("Number of page must be from 1!");
+                        this.setState({messageLoadFail: 'Number of page must be from 1.'});
+                    }
+                    else{
+                        this.setState({messageLoadFail: 'Error to change search page.'});
                     }
                 }
                 else {
-                    alert("Fail to load data!")
+                    this.setState({messageLoadFail: 'Fail to change search page.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
     refresh() {
-        this.loadData();
         this.setState({
             searchValue: '',
             isSearch: false,
+            isLoadFail: false
         })
+        this.loadData();
     }
 
     toggle() {
-        this.setState({ modal: !this.state.modal })
+        this.setState({ 
+            modal: !this.state.modal,
+            categoryName: '',
+            categoryId: '',
+            isDeleteFail: false 
+        })
     }
 
     toggleUpdate() {
-        this.setState({ modalUpdate: !this.state.modalUpdate })
+        this.setState({ 
+            modalUpdate: !this.state.modalUpdate,
+            categoryName: '',
+            categoryId: '' 
+        })
     }
 
     toggleButton(categoryIdValue, categoryNameValue) {
@@ -186,9 +215,7 @@ export default class AvailableCategories extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    alert(response.data);
                     this.toggle();
-                    this.setState({ categoryId: '', categoryName: '' });
                     if (this.state.isSearch === true) {
                         this.changeSearchPage(1);
                     }
@@ -200,24 +227,24 @@ export default class AvailableCategories extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'CATEGORY_NOT_FOUND') {
-                        alert("Category not found");
+                        this.setState({messageDeleteFail: 'Category not found.'});
                     }
                     else if (err.response.data.message === 'CATEGORY_IS_DISABLED') {
-                        alert("Category is disabled");
+                        this.setState({messageDeleteFail: 'Category is disabled.'});
                     }
                     else {
-                        alert("Error");
+                        this.setState({messageDeleteFail: 'Error to delete category.'});
                     }
                 }
                 else {
-                    alert("Fail to delete!");
+                    this.setState({messageDeleteFail: 'Fail to delete category.'});
                 }
+                this.setState({isDeleteFail: true});
             })
     }
 
     handleUpdate = () => {
         this.toggleUpdate();
-        this.setState({ categoryId: '', categoryName: '' });
         if (this.state.isSearch === true) {
             this.changeSearchPage(1);
         }
@@ -239,7 +266,7 @@ export default class AvailableCategories extends Component {
                     <Container>
                         <Row>
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
-                                <FormGroup className="mb-2">
+                                <FormGroup className="mb-4">
                                     <Input type="text" name="searchvalue" id="searchvalue"
                                         placeholder="Search by name" />
                                 </FormGroup>
@@ -248,12 +275,28 @@ export default class AvailableCategories extends Component {
                                 <Button color="primary">Find</Button>
                             </Col>
                         </Row>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                {
+                                    this.state.isLoadFail &&
+                                    <Alert color="danger">
+                                        {this.state.messageLoadFail}
+                                    </Alert>
+                                }
+                            </Col>
+                        </Row>
                     </Container>
                 </Form>
                 <br />
                 {this.state.isSearch === true && this.state.searchValue !== '' &&
                     <p style={{ textAlign: 'center', color: 'grey', fontSize: '20px' }}>
                         Search results: {this.state.searchValue}
+                    </p>
+                }
+                {
+                    this.state.categoryList.length < 1 &&
+                    <p style={{ textAlign: 'center'}}>
+                        No results
                     </p>
                 }
                 <Table hover>
@@ -316,6 +359,12 @@ export default class AvailableCategories extends Component {
                     <ModalBody>
                         Sure to delete Category: <b>{this.state.categoryName}</b> -
                         id: <b>{this.state.categoryId}</b> ?
+                        {
+                            this.state.isDeleteFail &&
+                            <Alert color="danger">
+                                {this.state.messageDeleteFail}
+                            </Alert>
+                        }
                     </ModalBody>
                     <ModalFooter>
                         <Button color="danger" onClick={() => this.handleDelete()}>Delete</Button>

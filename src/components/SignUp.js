@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
-import { Button, Form, FormGroup, Label, Input, Container, Row, Col } from 'reactstrap';
+import {
+    Button, Form, FormGroup,
+    Label, Input, Container, Row, Col, Alert,
+    Modal, ModalHeader, ModalBody, ModalFooter
+} from 'reactstrap';
 import axios from 'axios';
 
 export default class SignUp extends Component {
@@ -11,6 +15,11 @@ export default class SignUp extends Component {
             fullNameErr: '',
             phoneErr: '',
             addressErr: '',
+
+            isFail: false,
+            messageFail: '',
+
+            modal: false
         };
     }
 
@@ -81,39 +90,45 @@ export default class SignUp extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    alert("Success to sign up.");
-                    this.props.onClose();
+                    this.toggle();
                 }
             })
             .catch(err => {
                 if (err.response) {
                     switch (err.response.data.message) {
                         case 'USERNAME_NOT_CORRECT_FORMAT':
-                            alert("Username not correct format !");
+                            this.setState({ messageFail: 'Username is not correct format.' });
                             break;
                         case 'PASSWORD_NOT_CORRECT_FORMAT':
-                            alert("Password not correct format !");
+                            this.setState({ messageFail: 'Password is not correct format.' });
                             break;
                         case 'FULLNAME_IS_EMPTY':
-                            alert("Full name is empty !");
+                            this.setState({ messageFail: 'Full name is empty.' });
                             break;
                         case 'PHONE_NOT_CORRECT_FORMAT':
-                            alert("Phone not correct format !");
+                            this.setState({ messageFail: 'Phone is not correct format.' });
                             break;
                         case 'ADDRESS_IS_EMPTY':
-                            alert("Address is empty !");
+                            this.setState({ messageFail: 'Address is not correct format.' });
                             break;
                         case 'USERNAME_ALREADY_TAKEN':
-                            alert("Username already used !"); 
+                            this.setState({ messageFail: 'Username already taken.' });
                             break;
                         default:
-                            alert("Error to sign up !");           
+                            this.setState({ messageFail: 'Error to sign up.' });
                     }
                 }
                 else {
-                    alert("Fail to sign up!");
+                    this.setState({ messageFail: 'Fail to sign up.' });
                 }
+                this.setState({
+                    isFail: true,
+                })
             });
+    }
+
+    toggle() {
+        this.setState({ modal: !this.state.modal })
     }
 
     onBack = () => {
@@ -123,11 +138,13 @@ export default class SignUp extends Component {
     render() {
         return (
             <div>
-                <h1 style={{ backgroundColor: 'gold', 
-                                textAlign: 'center', 
-                                color: 'Green',
-                                height: '60px',
-                                marginBottom: '20px'}}>
+                <h1 style={{
+                    backgroundColor: 'gold',
+                    textAlign: 'center',
+                    color: 'Green',
+                    height: '60px',
+                    marginBottom: '20px'
+                }}>
                     Sign Up Form
                 </h1>
                 <Form inline onSubmit={(e) => this.handleSignUp(e)}>
@@ -136,8 +153,10 @@ export default class SignUp extends Component {
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
                                 <FormGroup className="mb-4">
                                     <Label for="username" className="mr-sm-2"><b>Username</b></Label>
-                                    <Input type="text" name="username" id="username" 
-                                        placeholder="No special characters and space"/>
+                                    <Input type="text" name="username" id="username" />
+                                    <p>
+                                        <i>*No special characters and space.</i>
+                                    </p>
                                     <p style={{ color: 'red' }}>
                                         {this.state.usernameErr}
                                     </p>
@@ -148,8 +167,10 @@ export default class SignUp extends Component {
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
                                 <FormGroup className="mb-4">
                                     <Label for="password" className="mr-sm-2"><b>Password</b></Label>
-                                    <Input type="password" name="password" id="password" 
-                                        placeholder="No special characters and space - Min: 6 / Max: 20"/>
+                                    <Input type="password" name="password" id="password" />
+                                    <p>
+                                        <i>*No special characters and space - Min: 6 / Max: 20.</i>
+                                    </p>
                                     <p style={{ color: 'red' }}>
                                         {this.state.passwordErr}
                                     </p>
@@ -160,8 +181,10 @@ export default class SignUp extends Component {
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
                                 <FormGroup className="mb-4">
                                     <Label for="fullname" className="mr-sm-2"><b>Full name</b></Label>
-                                    <Input type="text" name="fullname" id="fullname" 
-                                        placeholder="Not empty"/>
+                                    <Input type="text" name="fullname" id="fullname" />
+                                    <p>
+                                        <i>*Not empty.</i>
+                                    </p>
                                     <p style={{ color: 'red' }}>
                                         {this.state.fullNameErr}
                                     </p>
@@ -172,8 +195,10 @@ export default class SignUp extends Component {
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
                                 <FormGroup className="mb-4">
                                     <Label for="phone" className="mr-sm-2"><b>Phone</b></Label>
-                                    <Input type="number" name="phone" id="phone" 
-                                        placeholder="Not empty - 10 or 11 numbers"/>
+                                    <Input type="number" name="phone" id="phone" />
+                                    <p>
+                                        <i>*Not empty - 10 or 11 numbers.</i>
+                                    </p>
                                     <p style={{ color: 'red' }}>
                                         {this.state.phoneErr}
                                     </p>
@@ -184,12 +209,24 @@ export default class SignUp extends Component {
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
                                 <FormGroup className="mb-4">
                                     <Label for="address" className="mr-sm-2"><b>Address</b></Label>
-                                    <Input type="text" name="address" id="address" 
-                                        placeholder="Not empty"/>
+                                    <Input type="text" name="address" id="address" />
+                                    <p>
+                                        <i>*Not empty.</i>
+                                    </p>
                                     <p style={{ color: 'red' }}>
                                         {this.state.addressErr}
                                     </p>
                                 </FormGroup>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
+                                {
+                                    this.state.isFail &&
+                                    <Alert color="danger">
+                                        {this.state.messageFail}
+                                    </Alert>
+                                }
                             </Col>
                         </Row>
                         <Row>
@@ -203,10 +240,23 @@ export default class SignUp extends Component {
                 <Container>
                     <Row>
                         <Col sm="12" md={{ size: 6, offset: 3 }}>
-                            <Button color="primary" onClick={() => this.onBack()}>Back To Sign In</Button>
+                            <Button color="primary" className="mb-4" onClick={() => this.onBack()}>
+                                Back To Sign In
+                            </Button>
                         </Col>
                     </Row>
                 </Container>
+                <Modal isOpen={this.state.modal}>
+                    <ModalHeader>Notice</ModalHeader>
+                    <ModalBody>
+                        <h4 style={{ color: 'green' }}>
+                            Success to sign up - Now you can sign in.
+                        </h4>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={() => this.onBack()}>Close</Button>
+                    </ModalFooter>
+                </Modal>
             </div>
         )
     }

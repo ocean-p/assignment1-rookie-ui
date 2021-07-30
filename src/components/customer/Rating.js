@@ -1,13 +1,22 @@
 import axios from 'axios';
 import React, { Component } from 'react';
-import { Container, Form, Row, Col, Button } from 'reactstrap';
+import { Container, Form, Row, Col, Button, Alert } from 'reactstrap';
 
 export default class Rating extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            point: 0
+            point: 0,
+
+            isRatingFail: false,
+            messageRatingFail: '',
+
+            isUpdateFail: false,
+            messageUpdateFail: '',
+
+            isLoadFail: false,
+            messageLoadFail: ''
         };
     }
 
@@ -35,24 +44,25 @@ export default class Rating extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
-                        alert("Product not found");
+                        this.setState({messageLoadFail: 'Product not found.'});
                     }
                     else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
-                        alert("Product is disabled");
+                        this.setState({messageLoadFail: 'Product is disabled.'});
                     }
                     else if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        alert("Account not found");
+                        this.setState({messageLoadFail: 'Account not found.'});
                     }
                     else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                        alert("Account is disabled");
+                        this.setState({messageLoadFail: 'Account is disabled.'});
                     }
                     else {
-                        alert("Error to get point!");
+                        this.setState({messageLoadFail: 'Error to get point.'});
                     }
                 }
                 else {
-                    alert("Fail to get point!");
+                    this.setState({messageLoadFail: 'Fail to get point.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
@@ -70,37 +80,38 @@ export default class Rating extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                alert(response.data);
                 this.props.onClose();
             }
         })
         .catch(err => {
             if (err.response) {
-                if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
-                    alert("Product not found");
-                }
-                else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
-                    alert("Product is disabled");
-                }
-                else if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                    alert("Account not found");
-                }
-                else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                    alert("Account is disabled");
-                }
-                else if (err.response.data.message === 'POINT_NOT_CORRECT') {
-                    alert("Point - Max:10, Min:1");
-                }
-                else if (err.response.data.message === 'RATING_ALREADY') {
-                    alert("This product already rated - please update your rate");
-                }
-                else {
-                    alert("Error to rate!");
+                switch (err.response.data.message) {
+                    case 'PRODUCT_NOT_FOUND':
+                        this.setState({messageRatingFail: 'Product not found.'});
+                        break;
+                    case 'PRODUCT_IS_DISABLED':
+                        this.setState({messageRatingFail: 'Product is disabled.'});
+                        break;
+                    case 'ACCOUNT_NOT_FOUND':
+                        this.setState({messageRatingFail: 'Account not found.'});
+                        break;
+                    case 'ACCOUNT_IS_DISABLED':
+                        this.setState({messageRatingFail: 'Account is disabled.'});
+                        break;
+                    case 'POINT_NOT_CORRECT':
+                        this.setState({messageRatingFail: 'Point - Max:10, Min:1.'});
+                        break;
+                    case 'RATING_ALREADY':
+                        this.setState({messageRatingFail: 'This product already rated - please update your rate.'});
+                        break;
+                    default: 
+                        this.setState({messageRatingFail: 'Error to rate this product.'});
                 }
             }
             else {
-                alert("Fail to rate!");
+                this.setState({messageRatingFail: 'Fail to rate this product.'});
             }
+            this.setState({isRatingFail: true})
         })
     }
 
@@ -118,37 +129,38 @@ export default class Rating extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                alert(response.data);
                 this.props.onClose();
             }
         })
         .catch(err => {
             if (err.response) {
-                if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
-                    alert("Product not found");
-                }
-                else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
-                    alert("Product is disabled");
-                }
-                else if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                    alert("Account not found");
-                }
-                else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                    alert("Account is disabled");
-                }
-                else if (err.response.data.message === 'POINT_NOT_CORRECT') {
-                    alert("Point - Max:10, Min:1");
-                }
-                else if (err.response.data.message === 'RATING_NOT_FOUND') {
-                    alert("Not yet rating this product - can not update");
-                }
-                else {
-                    alert("Error to update!");
+                switch (err.response.data.message) {
+                    case 'PRODUCT_NOT_FOUND':
+                        this.setState({messageUpdateFail: 'Product not found.'});
+                        break;
+                    case 'PRODUCT_IS_DISABLED':
+                        this.setState({messageUpdateFail: 'Product is disabled.'});
+                        break;
+                    case 'ACCOUNT_NOT_FOUND':
+                        this.setState({messageUpdateFail: 'Account not found.'});
+                        break;
+                    case 'ACCOUNT_IS_DISABLED':
+                        this.setState({messageUpdateFail: 'Account is disabled.'});
+                        break;
+                    case 'POINT_NOT_CORRECT':
+                        this.setState({messageUpdateFail: 'Point - Max:10, Min:1.'});
+                        break;
+                    case 'RATING_NOT_FOUND':
+                        this.setState({messageUpdateFail: 'Not yet rating this product - can not update.'});
+                        break;
+                    default: 
+                        this.setState({messageUpdateFail: 'Error to update rating this product.'});
                 }
             }
             else {
-                alert("Fail to update!");
+                this.setState({messageUpdateFail: 'Fail to update rating this product.'});
             }
+            this.setState({isUpdateFail: true});
         })
     }
 
@@ -162,8 +174,14 @@ export default class Rating extends Component {
                             Not yet rating this product
                         </h4>
                         <Container>
+                            {
+                                this.state.isLoadFail &&
+                                <Alert color="danger">
+                                    {this.state.messageLoadFail}
+                                </Alert>
+                            }
                             <Form onSubmit={(e) => this.handleRating(e)}>
-                                <Row xs="4">
+                                <Row xs="4" className="mb-4">
                                     <Col>
                                         <select style={{height: '40px', width: '100px', paddingLeft: '10px'}}
                                             name="point" id="point">
@@ -183,6 +201,14 @@ export default class Rating extends Component {
                                         <Button color="primary">Rating</Button>
                                     </Col>
                                 </Row>
+                                <Row xs="2">
+                                    {
+                                        this.state.isRatingFail &&
+                                        <Alert color="danger">
+                                            {this.state.messageRatingFail}
+                                        </Alert>
+                                    }
+                                </Row>
                             </Form>
                         </Container>
                     </div>
@@ -197,8 +223,14 @@ export default class Rating extends Component {
                             Can update rating anytime
                         </p>
                         <Container>
+                            {
+                                this.state.isLoadFail &&
+                                <Alert color="danger">
+                                    {this.state.messageLoadFail}
+                                </Alert>
+                            }
                             <Form onSubmit={(e) => this.handleUpdateRating(e)}>
-                                <Row xs="4">
+                                <Row xs="4" className="mb-4">
                                     <Col>
                                         <select style={{height: '40px', width: '100px', paddingLeft: '10px'}}
                                             name="point" id="point">
@@ -217,6 +249,14 @@ export default class Rating extends Component {
                                     <Col>
                                         <Button color="success">Update</Button>
                                     </Col>
+                                </Row>
+                                <Row xs="2">
+                                    {
+                                        this.state.isUpdateFail &&
+                                        <Alert color="danger">
+                                            {this.state.messageUpdateFail}
+                                        </Alert>
+                                    }
                                 </Row>
                             </Form>
                         </Container>

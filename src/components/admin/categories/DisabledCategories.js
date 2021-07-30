@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { Button, Table, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, Table, Modal, ModalHeader, ModalBody, ModalFooter,
+    Container, Row, Col, Alert
+} from 'reactstrap';
 
 
 export default class DisabledCategories extends Component {
@@ -13,7 +15,13 @@ export default class DisabledCategories extends Component {
 
             modal: false,
             categoryName: '',
-            categoryId: ''
+            categoryId: '',
+
+            isRestoreFail: false,
+            messageRestoreFail: '',
+
+            isLoadFail: false,
+            messageLoadFail: '',
         };
     }
 
@@ -29,8 +37,11 @@ export default class DisabledCategories extends Component {
                     this.handlePageList(response);
                 }
             })
-            .catch(err => {
-                alert("Fail to load data!");
+            .catch(() => {
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to load disabled categories.'
+                })
             })
     }
 
@@ -55,17 +66,26 @@ export default class DisabledCategories extends Component {
             .then(response => {
                 if (response.status === 200) {
                     this.setState({
-                        categoryList: response.data.categories
+                        categoryList: response.data.categories, 
+                        isLoadFail: false
                     })
                 }
             })
-            .catch(err => {
-                alert("Fail to load data!");
+            .catch(() => {
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to change page.'
+                })
             })
     }
 
     toggle() {
-        this.setState({ modal: !this.state.modal })
+        this.setState({ 
+            modal: !this.state.modal,
+            categoryName: '',
+            categoryId: '',
+            isRestoreFail: false
+        })
     }
 
     toggleButton(categoryIdValue, categoryNameValue) {
@@ -84,27 +104,26 @@ export default class DisabledCategories extends Component {
             }
         ).then(response => {
             if (response.status === 200) {
-                alert(response.data);
                 this.toggle();
                 this.loadData();
-                this.setState({ categoryId: '', categoryName: '' });
             }
         })
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'CATEGORY_NOT_FOUND') {
-                        alert("Category not found");
+                        this.setState({messageRestoreFail: 'Category not found.'});
                     }
                     else if (err.response.data.message === 'CATEGORY_ACTIVE') {
-                        alert("Category already active!");
+                        this.setState({messageRestoreFail: 'Category already active.'});
                     }
                     else {
-                        alert("Error");
+                        this.setState({messageRestoreFail: 'Error to restore category.'});
                     }
                 }
                 else {
-                    alert("Fail to delete!");
+                    this.setState({messageRestoreFail: 'Fail to restore category.'});
                 }
+                this.setState({isRestoreFail: true});
             })
     }
 
@@ -114,6 +133,18 @@ export default class DisabledCategories extends Component {
                 <h2 style={{ textAlign: 'center' }}>
                     Disabled Categories
                 </h2>
+                <Container>
+                    <Row>
+                        <Col sm="12" md={{ size: 6, offset: 3 }}>
+                            {
+                                this.state.isLoadFail &&
+                                <Alert color="danger">
+                                    {this.state.messageLoadFail}
+                                </Alert>
+                            }
+                        </Col>
+                    </Row>
+                </Container>
                 <br />
                 <Table hover>
                     <thead>
@@ -159,6 +190,12 @@ export default class DisabledCategories extends Component {
                     <ModalBody>
                         Sure to restore Category: <b>{this.state.categoryName}</b> -
                         id: <b>{this.state.categoryId}</b> ?
+                        {
+                            this.state.isRestoreFail &&
+                            <Alert color="danger">
+                                {this.state.messageRestoreFail}
+                            </Alert>
+                        }
                     </ModalBody>
                     <ModalFooter>
                         <Button color="success" onClick={() => this.handleRestore()}>Restore</Button>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Container, Row, Col, Button, Form, Label, Input } from 'reactstrap';
+import { Container, Row, Col, Button, Form, Label, Input, Alert } from 'reactstrap';
 import axios from 'axios';
 
 export default class UpdateAccountForm extends Component {
@@ -9,7 +9,13 @@ export default class UpdateAccountForm extends Component {
         this.state = {
             fullname: '',
             phone: '',
-            address: ''
+            address: '',
+
+            isUpdateFail: false,
+            messageUpdateFail: '',
+
+            isLoadFail: false,
+            messageLoadFail: '',
         };
     }
 
@@ -23,25 +29,28 @@ export default class UpdateAccountForm extends Component {
         })
         .then(response => {
             if(response.status === 200){
-                this.setState({ 
-                    fullname: response.data.fullName,
-                    phone: response.data.phone,
-                    address: response.data.address,
-                })
+                if(response.data.successCode === 'LOAD_ACCOUNT_SUCCESS'){
+                    this.setState({ 
+                        fullname: response.data.datas.fullName,
+                        phone: response.data.datas.phone,
+                        address: response.data.datas.address,
+                    })
+                }
             }
         })
         .catch(err => {
             if(err.response){
                 if(err.response.data.message === 'ACCOUNT_NOT_FOUND'){
-                    alert("Account not found");
+                    this.setState({messageLoadFail: 'Account not found.'})
                 }
                 else{
-                    alert("Error to load data");
+                    this.setState({messageLoadFail: 'Error to load account.'})
                 }
             }
             else{
-                alert("Fail to load data!");
+                this.setState({messageLoadFail: 'Fail to load account.'})
             }
+            this.setState({isLoadFail: true})
         })
     }
 
@@ -65,44 +74,46 @@ export default class UpdateAccountForm extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                alert("Success to update account!");
-                this.props.onUpdate();
+                if(response.data.successCode === 'UPDATE_ACCOUNT_SUCCESS'){
+                    this.props.onUpdate();
+                }
             }
         })
         .catch(err => {
             if(err.response){
                 switch (err.response.data.message) {
                     case 'ACCOUNT_NOT_FOUND':
-                        alert("Account not found");
+                        this.setState({messageUpdateFail: 'Account not found.'});
                         break;
                     case 'ACCOUNT_NOT_BELONG_TO_CUSTOMER':
-                        alert("Account not belong to customer");
+                        this.setState({messageUpdateFail: 'Account not belong to customer.'});
                         break;
                     case 'ACCOUNT_IS_DISABLED':
-                        alert("Account is disabled");
+                        this.setState({messageUpdateFail: 'Account is disabled.'});
                         break;
                     case 'PASSWORD_NOT_CORRECT_FORMAT':
-                        alert("Password - Max:20, Min:6");
+                        this.setState({messageUpdateFail: 'Password length min:6 - max:20.'});
                         break;
                     case 'FULLNAME_IS_EMPTY':
-                        alert("Full name is empty");
+                        this.setState({messageUpdateFail: 'Full name is empty.'});
                         break;
                     case 'PHONE_NOT_CORRECT_FORMAT':
-                        alert("Phone not correct format - 10 or 11 numbers");
+                        this.setState({messageUpdateFail: 'Phone is not correct format.'});
                         break;
                     case 'ADDRESS_IS_EMPTY':
-                        alert("Address is empty");
+                        this.setState({messageUpdateFail: 'Address is empty.'});
                         break;
                     case 'ROLE_NOT_CORRECT':
-                        alert("Role must be customer or admin");
+                        this.setState({messageUpdateFail: 'Role must be admin or customer.'});
                         break;
                     default:
-                        alert("Error to update !");       
+                        this.setState({messageUpdateFail: 'Error to update account.'});   
                 }
             }
             else{
-                alert("Fail to update account!");
+                this.setState({messageUpdateFail: 'Fail to update account.'});
             }
+            this.setState({isUpdateFail: true});
         })    
     }
 
@@ -111,6 +122,14 @@ export default class UpdateAccountForm extends Component {
             <div>
                 <Form onSubmit={(e) => this.handleUpdate(e)}>
                     <Container>
+                        <Row>
+                            {
+                                this.state.isLoadFail &&
+                                <Alert color="danger">
+                                    {this.state.messageLoadFail}
+                                </Alert>
+                            }
+                        </Row>
                         <Row xs="3" className="mb-4">
                             <Col>
                                 <Label for="password">Password</Label>
@@ -159,6 +178,14 @@ export default class UpdateAccountForm extends Component {
                                     <option>admin</option>
                                 </select>
                             </Col>
+                        </Row>
+                        <Row xs="2">
+                            {
+                                this.state.isUpdateFail &&
+                                <Alert color="danger">
+                                    {this.state.messageUpdateFail}
+                                </Alert>
+                            }
                         </Row>
                         <Button color="warning">Update</Button>
                     </Container>

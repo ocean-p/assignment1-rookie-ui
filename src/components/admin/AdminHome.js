@@ -11,17 +11,22 @@ import DisabledProducts from './products/DisabledProducts';
 import AddAccountForm from './accounts/AddAccountForm';
 import AddCategoryForm from './categories/AddCategoryForm';
 import AddProductForm from './products/AddProductForm';
+import {Modal, ModalHeader, ModalBody, ModalFooter, Button} from 'reactstrap';
 
 export default class AdminHome extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {
+            modal: false,
+        };
+    }
+
+    toggle() {
+        this.setState({modal: !this.state.modal});
     }
 
     logout = () => {
-        if(window.confirm('Are you sure sign out ?') === false) return;
-
         localStorage.removeItem('accessToken');
         localStorage.removeItem('role');
         localStorage.removeItem('name');
@@ -39,9 +44,9 @@ export default class AdminHome extends Component {
                         Admin Home Page
                     </h1>
                     <AdminNavBar />
-                    <button type="submit" onClick={this.logout}>
+                    <Button color="info" onClick={() => this.toggle()}>
                         Sign out
-                    </button>
+                    </Button>
 
                     <Route path="/accounts/customer" component = {CustomerAccounts}/>
                     <Route path="/accounts/admin" component = {AdminAccounts}/>
@@ -53,6 +58,17 @@ export default class AdminHome extends Component {
                     <Route exact path="/products" component = {AvailableProducts}/>
                     <Route exact path="/products/disabled" component = {DisabledProducts}/>
                     <Route exact path="/products/add" component = {AddProductForm}/>
+
+                    <Modal isOpen={this.state.modal}>
+                        <ModalHeader>Notice</ModalHeader>
+                        <ModalBody>
+                            Are you sure to sign out ?
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="success" onClick={this.logout}>Sign out</Button>
+                            <Button color="primary" onClick={() => this.toggle()}>Cancel</Button>
+                        </ModalFooter>
+                    </Modal>
                 </div>
             </Router>
         )

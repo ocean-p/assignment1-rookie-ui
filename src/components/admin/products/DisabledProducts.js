@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {
     Card, Button, CardImg, CardTitle, CardText,
     CardSubtitle, CardBody, Container, Row, Col,
-    Modal, ModalHeader, ModalBody, ModalFooter
+    Modal, ModalHeader, ModalBody, ModalFooter, Alert
 } from 'reactstrap';
 import axios from 'axios';
 
@@ -16,7 +16,13 @@ export default class DisabledProducts extends Component {
 
             modal: false,
             productId: '',
-            productName: ''
+            productName: '',
+
+            isRestoreFail: false,
+            messageRestoreFail: '',
+
+            isLoadFail: false,
+            messageLoadFail: '',
         };
     }
 
@@ -32,8 +38,11 @@ export default class DisabledProducts extends Component {
                     this.handlePageList(response);
                 }
             })
-            .catch(err => {
-                alert("Fail to load data!");
+            .catch(() => {
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to load disabled products.'
+                })
             })
     }
 
@@ -61,17 +70,26 @@ export default class DisabledProducts extends Component {
             .then(response => {
                 if (response.status === 200) {
                     this.setState({
-                        productList: response.data.productList
+                        productList: response.data.productList,
+                        isLoadFail: true,
                     })
                 }
             })
-            .catch(err => {
-                alert("Fail to load data!");
+            .catch(() => {
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to change page.'
+                })
             })
     }
 
     toggle() {
-        this.setState({ modal: !this.state.modal })
+        this.setState({ 
+            modal: !this.state.modal,
+            productName: '',
+            productId: '' ,
+            isRestoreFail: false
+        })
     }
 
     toggleButton(productIdValue, productNameValue) {
@@ -91,30 +109,26 @@ export default class DisabledProducts extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    alert(response.data);
                     this.toggle();
                     this.loadData();
-                    this.setState({
-                        productId: '',
-                        productName: ''
-                    })
                 }
             })
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
-                        alert("Product not found");
+                        this.setState({messageRestoreFail: 'Product not found'});
                     }
                     else if (err.response.data.message === 'PRODUCT_ACTIVE') {
-                        alert("Product already active");
+                        this.setState({messageRestoreFail: 'Product already active'});
                     }
                     else {
-                        alert("Error");
+                        this.setState({messageRestoreFail: 'Error to restore product.'});
                     }
                 }
                 else {
-                    alert("Fail to restore!");
+                    this.setState({messageRestoreFail: 'Fail to restore product.'});
                 }
+                this.setState({isRestoreFail: true});
             })
     }
 
@@ -124,6 +138,18 @@ export default class DisabledProducts extends Component {
                 <h2 style={{ textAlign: 'center' }}>
                     Disabled Products
                 </h2>
+                <Container>
+                    <Row>
+                        <Col sm="12" md={{ size: 6, offset: 3 }}>
+                            {
+                                this.state.isLoadFail &&
+                                <Alert color="danger">
+                                    {this.state.messageLoadFail}
+                                </Alert>
+                            }
+                        </Col>
+                    </Row>
+                </Container>
                 <br />
                 <Container>
                     <Row xs="3" className="mb-3">
@@ -169,6 +195,12 @@ export default class DisabledProducts extends Component {
                         <ModalBody>
                             Sure to restore product: <b>{this.state.productName}</b> -
                             id: <b>{this.state.productId}</b> ?
+                            {
+                                this.state.isRestoreFail &&
+                                <Alert color="danger">
+                                    {this.state.messageRestoreFail}
+                                </Alert>
+                            }
                         </ModalBody>
                         <ModalFooter>
                             <Button color="success" onClick={() => this.handleRestore()}>Restore</Button>

@@ -5,7 +5,7 @@ import {
     CardSubtitle, CardBody, Container, Row, Col,
     Form, Input, UncontrolledButtonDropdown,
     DropdownMenu, DropdownItem, DropdownToggle,
-    Modal, ModalHeader, ModalBody, ModalFooter
+    Modal, ModalHeader, ModalBody, ModalFooter, Alert
 } from 'reactstrap';
 import ProductInfo from './ProductInfo';
 import Rating from './Rating';
@@ -33,7 +33,14 @@ export default class HomePage extends Component {
             productId: '',
             productName: '',
 
-            modalRating: false
+            modalRating: false,
+
+            modalAddToCart: false,
+            isAddToCartFail: false,
+            messageAddToCartFail: '',
+
+            isLoadFail: false,
+            messageLoadFail: ''
         };
     }
 
@@ -55,7 +62,10 @@ export default class HomePage extends Component {
                 }
             })
             .catch(() => {
-                alert("Fail to load product!");
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to load products.'
+                })
             })
     }
 
@@ -71,7 +81,10 @@ export default class HomePage extends Component {
                 }
             })
             .catch(() => {
-                alert("Fail to load category!")
+                this.setState({
+                    isLoadFail: true,
+                    messageLoadFail: 'Fail to load categories.'
+                })
             })
     }
 
@@ -96,21 +109,25 @@ export default class HomePage extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({ productList: response.data.productList })
+                    this.setState({
+                        productList: response.data.productList,
+                        isLoadFail: false
+                    })
                 }
             })
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'PAGE_LESS_THAN_ONE') {
-                        alert("Page must be from 1.");
+                        this.setState({ messageLoadFail: 'Page must be from 1.' });
                     }
                     else {
-                        alert("Error - try again.");
+                        this.setState({ messageLoadFail: 'Error to change page.' });
                     }
                 }
                 else {
-                    alert("Fail to change Page!");
+                    this.setState({ messageLoadFail: 'Fail to change page.' });
                 }
+                this.setState({ isLoadFail: true });
             })
     }
 
@@ -126,11 +143,8 @@ export default class HomePage extends Component {
                     this.setState({
                         productList: response.data.productList,
                         isCategory: true,
-                        isSearch: false
-                    }, () => {
-                        if (this.state.productList.length === 0) {
-                            alert("No results");
-                        }
+                        isSearch: false,
+                        isLoadFail: false
                     })
                     this.handleSearchByCategoryPageList(response);
                 }
@@ -138,21 +152,22 @@ export default class HomePage extends Component {
             .catch(err => {
                 if (err.response != null) {
                     if (err.response.data.message === "CATEGORY_NOT_FOUND") {
-                        alert("Category not found");
+                        this.setState({ messageLoadFail: 'Category not found' });
                     }
                     else if (err.response.data.message === "CATEGORY_IS_DISABLED") {
-                        alert("Category was deleted");
+                        this.setState({ messageLoadFail: 'Category was deleted' });
                     }
                     else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                        alert("Number of page must be from 1!");
+                        this.setState({ messageLoadFail: 'Number of page must be from 1' });
                     }
                     else {
-                        alert("Error - try again");
+                        this.setState({ messageLoadFail: 'Error to search by category.' });
                     }
                 }
                 else {
-                    alert("Fail to find!")
+                    this.setState({ messageLoadFail: 'Fail to search by category.' });
                 }
+                this.setState({ isLoadFail: true });
             })
     }
 
@@ -177,68 +192,70 @@ export default class HomePage extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({ productList: response.data.productList })
+                    this.setState({
+                        productList: response.data.productList,
+                        isLoadFail: false
+                    })
                 }
             })
             .catch(err => {
                 if (err.response != null) {
                     if (err.response.data.message === "CATEGORY_NOT_FOUND") {
-                        alert("Category not found");
+                        this.setState({ messageLoadFail: 'Category not found' });
                     }
                     else if (err.response.data.message === "CATEGORY_IS_DISABLED") {
-                        alert("Category was deleted");
+                        this.setState({ messageLoadFail: 'Category was deleted' });
                     }
                     else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                        alert("Number of page must be from 1!");
+                        this.setState({ messageLoadFail: 'Number of page must be from 1' });
                     }
                     else {
-                        alert("Error - try again");
+                        this.setState({ messageLoadFail: 'Error to change search page by category.' });
                     }
                 }
                 else {
-                    alert("Fail to find!")
+                    this.setState({ messageLoadFail: 'Fail to change search page by category.' });
                 }
+                this.setState({ isLoadFail: true });
             })
     }
 
     handleSearch(e) {
         e.preventDefault();
         this.setState({ searchValue: e.target.searchvalue.value })
-        axios.get(`http://localhost:8080/customer/product/search?name=${e.target.searchvalue.value}&page=1`, 
+        axios.get(`http://localhost:8080/customer/product/search?name=${e.target.searchvalue.value}&page=1`,
             {
                 headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
             }
         )
-        .then(response => {
-            if (response.status === 200) {
-                this.setState({
-                    productList: response.data.productList,
-                    isSearch: true,
-                    isCategory: false
-                }, () => {
-                    if (this.state.productList.length === 0) {
-                        alert("No results");
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        productList: response.data.productList,
+                        isSearch: true,
+                        isCategory: false,
+                        isLoadFail: false
+                    })
+                    this.handleSearchPageList(response);
+                }
+            })
+            .catch(err => {
+                if (err.response) {
+                    if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
+                        this.setState({ messageLoadFail: 'Not yet input anything.' });
                     }
-                })
-                this.handleSearchPageList(response);
-            }
-        })
-        .catch(err => {
-            if (err.response) {
-                if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
-                    alert("Not yet input anything!")
+                    else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
+                        this.setState({ messageLoadFail: 'Number of page must be from 1' });
+                    }
+                    else {
+                        this.setState({ messageLoadFail: 'Error to search by name.' });
+                    }
                 }
-                else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                    alert("Number of page must be from 1!");
+                else {
+                    this.setState({ messageLoadFail: 'Fail to search by name.' });
                 }
-                else{
-                    alert("Error - try again!")
-                }
-            }
-            else {
-                alert("Fail to search!")
-            }
-        })
+                this.setState({ isLoadFail: true });
+            })
     }
 
     handleSearchPageList(response) {
@@ -261,41 +278,43 @@ export default class HomePage extends Component {
                 headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
             }
         )
-        .then(response => {
-            if (response.status === 200) {
-                this.setState({
-                    productList: response.data.productList
-                })
-            }
-        })
-        .catch(err => {
-            if (err.response) {
-                if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
-                    alert("Not yet input anything!")
+            .then(response => {
+                if (response.status === 200) {
+                    this.setState({
+                        productList: response.data.productList,
+                        isLoadFail: false
+                    })
                 }
-                else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
-                    alert("Number of page must be from 1!");
+            })
+            .catch(err => {
+                if (err.response) {
+                    if (err.response.data.message === "SEARCH_VALUE_IS_EMPTY") {
+                        this.setState({ messageLoadFail: 'Not yet input anything.' });
+                    }
+                    else if (err.response.data.message === "PAGE_LESS_THAN_ONE") {
+                        this.setState({ messageLoadFail: 'Number of page must be from 1' });
+                    }
+                    else {
+                        this.setState({ messageLoadFail: 'Error to change search page by name.' });
+                    }
                 }
-                else{
-                    alert("Error - try again!")
+                else {
+                    this.setState({ messageLoadFail: 'Fail to change search page by name.' });
                 }
-            }
-            else {
-                alert("Fail to search!")
-            }
-        })
+                this.setState({ isLoadFail: true });
+            })
     }
 
     toggleMore() {
-        this.setState({ 
+        this.setState({
             modalMore: !this.state.modalMore,
             productId: '',
-            productName: '' 
+            productName: ''
         });
     }
 
     toggleMoreButton(productIdValue, productNameValue) {
-        this.setState({ 
+        this.setState({
             modalMore: !this.state.modalMore,
             productId: productIdValue,
             productName: productNameValue
@@ -303,23 +322,29 @@ export default class HomePage extends Component {
     }
 
     toggleRating() {
-        this.setState({ 
+        this.setState({
             modalRating: !this.state.modalRating,
             productId: '',
-            productName: '' 
+            productName: ''
         });
     }
 
     toggleRatingButton(productIdValue, productNameValue) {
-        this.setState({ 
+        this.setState({
             modalRating: !this.state.modalRating,
             productId: productIdValue,
             productName: productNameValue
         })
     }
-    
+
+    toggleAddToCart() {
+        this.setState({
+            modalAddToCart: !this.state.modalAddToCart
+        })
+    }
+
     handleAddToCart(productId) {
-        axios.post('http://localhost:8080/customer/cart/add', 
+        axios.post('http://localhost:8080/customer/cart/add',
             {
                 username: `${localStorage.getItem('name')}`,
                 product: {
@@ -330,36 +355,40 @@ export default class HomePage extends Component {
                 headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
             }
         )
-        .then(response => {
-            if(response.status === 200){
-                alert(response.data);
-            }
-        })
-        .catch(err => {
-            if (err.response) {
-                if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                    alert("Account not found");
+            .then(response => {
+                if (response.status === 200) {
+                    this.toggleAddToCart();
+                    this.setState({ isAddToCartFail: false });
                 }
-                else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                    alert("Account is disabled");
-                }
-                else if (err.response.data.message === 'PRODUCT_NOT_FOUND') {
-                    alert("Product not found");
-                }
-                else if (err.response.data.message === 'PRODUCT_IS_DISABLED') {
-                    alert("Product is disabled");
-                }
-                else if (err.response.data.message === 'QUANTITY_GREATER_THAN_AVAILABLE') {
-                    alert("Quantity is greater than available");
+            })
+            .catch(err => {
+                if (err.response) {
+                    switch (err.response.data.message) {
+                        case 'ACCOUNT_NOT_FOUND':
+                            this.setState({ messageAddToCartFail: 'Account not found.' });
+                            break;
+                        case 'ACCOUNT_IS_DISABLED':
+                            this.setState({ messageAddToCartFail: 'Account is disabled.' });
+                            break;
+                        case 'PRODUCT_NOT_FOUND':
+                            this.setState({ messageAddToCartFail: 'Product not found.' });
+                            break;
+                        case 'PRODUCT_IS_DISABLED':
+                            this.setState({ messageAddToCartFail: 'Product is disabled.' });
+                            break;
+                        case 'QUANTITY_GREATER_THAN_AVAILABLE':
+                            this.setState({ messageAddToCartFail: 'Quantity is greater than available.' });
+                            break;
+                        default:
+                            this.setState({ messageAddToCartFail: 'Error to add product to cart.' });
+                    }
                 }
                 else {
-                    alert("Error - try again");
+                    this.setState({ messageAddToCartFail: 'Fail to add product to cart.' });
                 }
-            }
-            else {
-                alert("Fail to add product to cart!");
-            }
-        })
+                this.setState({ isAddToCartFail: true });
+                this.toggleAddToCart();
+            })
     }
 
     render() {
@@ -384,9 +413,9 @@ export default class HomePage extends Component {
                         </DropdownMenu>
                     </UncontrolledButtonDropdown>
                 </h2>
-                <br/>
+                <br />
                 <Container>
-                    <Form onSubmit={(e) => this.handleSearch(e)}>
+                    <Form className="mb-4" onSubmit={(e) => this.handleSearch(e)}>
                         <Row>
                             <Col xs="6">
                                 <Input type="text" name="searchvalue" id="searchvalue"
@@ -397,6 +426,16 @@ export default class HomePage extends Component {
                             </Col>
                         </Row>
                     </Form>
+                    <Row>
+                        <Col sm="12" md={{ size: 6, offset: 3 }}>
+                            {
+                                this.state.isLoadFail &&
+                                <Alert color="danger">
+                                    {this.state.messageLoadFail}
+                                </Alert>
+                            }
+                        </Col>
+                    </Row>
                 </Container>
                 {this.state.isCategory === true && this.state.categoryName !== '' &&
                     <p style={{ textAlign: 'center', color: 'grey', fontSize: '20px', marginTop: '40px' }}>
@@ -406,6 +445,12 @@ export default class HomePage extends Component {
                 {this.state.isSearch === true && this.state.searchValue !== '' &&
                     <p style={{ textAlign: 'center', color: 'grey', fontSize: '20px', marginTop: '40px' }}>
                         Search results: {this.state.searchValue}
+                    </p>
+                }
+                {
+                    this.state.productList.length < 1 &&
+                    <p style={{ textAlign: 'center'}}>
+                        No results
                     </p>
                 }
                 <br />
@@ -445,8 +490,8 @@ export default class HomePage extends Component {
                         {this.state.productList.map((product, index) => {
                             return (
                                 <Col key={index} className="mb-4">
-                                    <Button color="success" 
-                                            onClick={() => this.handleAddToCart(`${product.id}`)}>
+                                    <Button color="success"
+                                        onClick={() => this.handleAddToCart(`${product.id}`)}>
                                         Add to cart
                                     </Button>
                                     <Card>
@@ -488,10 +533,32 @@ export default class HomePage extends Component {
                         Rating product: {this.state.productName} - code: {this.state.productId}
                     </ModalHeader>
                     <ModalBody>
-                        <Rating id={this.state.productId} onClose={() => this.toggleRating()}/>
+                        <Rating id={this.state.productId} onClose={() => this.toggleRating()} />
                     </ModalBody>
                     <ModalFooter>
                         <Button color="danger" onClick={() => this.toggleRating()}>Close</Button>
+                    </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.modalAddToCart}>
+                    <ModalHeader>
+                        Notice
+                    </ModalHeader>
+                    <ModalBody>
+                        {
+                            this.state.isAddToCartFail === true &&
+                            <p style={{ color: 'red' }}>
+                                {this.state.messageAddToCartFail}
+                            </p>
+                        }
+                        {
+                            this.state.isAddToCartFail === false &&
+                            <p style={{ color: 'green' }}>
+                                Success to add product to cart.
+                            </p>
+                        }
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" onClick={() => this.toggleAddToCart()}>Close</Button>
                     </ModalFooter>
                 </Modal>
             </div>
