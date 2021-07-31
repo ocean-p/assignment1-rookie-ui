@@ -31,10 +31,12 @@ export default class DisabledCategories extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        categoryList: response.data.categories
-                    })
-                    this.handlePageList(response);
+                    if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS'){
+                        this.setState({
+                            categoryList: response.data.datas.categories
+                        })
+                        this.handlePageList(response);
+                    }
                 }
             })
             .catch(() => {
@@ -51,7 +53,7 @@ export default class DisabledCategories extends Component {
 
     handlePageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -65,10 +67,12 @@ export default class DisabledCategories extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        categoryList: response.data.categories, 
-                        isLoadFail: false
-                    })
+                    if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS'){
+                        this.setState({
+                            categoryList: response.data.datas.categories, 
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(() => {
@@ -104,8 +108,10 @@ export default class DisabledCategories extends Component {
             }
         ).then(response => {
             if (response.status === 200) {
-                this.toggle();
-                this.loadData();
+                if(response.data.successCode === 'RESTORE_CATEGORY_SUCCESS'){
+                    this.toggle();
+                    this.loadData();
+                }
             }
         })
             .catch(err => {

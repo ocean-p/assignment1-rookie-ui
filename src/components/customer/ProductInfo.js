@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { Component } from 'react';
-import { Container, Row, Col } from 'reactstrap';
+import { Container, Row, Col, Alert } from 'reactstrap';
 
 export default class ProductInfo extends Component {
 
@@ -17,6 +17,9 @@ export default class ProductInfo extends Component {
             categoryId: '',
 
             categoryList: [],
+
+            isLoadFail: false,
+            messageLoadFail: '',
         };
     }
 
@@ -33,33 +36,36 @@ export default class ProductInfo extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                this.setState({
-                    name: response.data.name,
-                    price: response.data.price,
-                    quantity: response.data.quantity,
-                    image: response.data.image,
-                    description: response.data.description,
-                    categoryId: response.data.categoryId,
-                    createDate: response.data.createDate,
-                    averageRate: response.data.averageRate
-                })
+                if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                    this.setState({
+                        name: response.data.datas.name,
+                        price: response.data.datas.price,
+                        quantity: response.data.datas.quantity,
+                        image: response.data.datas.image,
+                        description: response.data.datas.description,
+                        categoryId: response.data.datas.categoryId,
+                        createDate: response.data.datas.createDate,
+                        averageRate: response.data.datas.averageRate
+                    })
+                }
             }
         })
         .catch(err => {
             if(err.response){
                 if(err.response.data.message === 'PRODUCT_NOT_FOUND'){
-                    alert("Product not found");
+                    this.setState({messageLoadFail: 'Product not found.'});
                 }
                 else if(err.response.data.message === 'PRODUCT_IS_DISABLED'){
-                    alert("Product is disabled");
+                    this.setState({messageLoadFail: 'Product is disabled.'});
                 }
                 else{
-                    alert("Error to load product info!");
+                    this.setState({messageLoadFail: 'Error to load product info.'});
                 }
             }
             else{
-                alert("Fail to load data!");
+                this.setState({messageLoadFail: 'Fail to load product info.'});
             }
+            this.setState({isLoadFail: true});
         })
     }
 
@@ -71,11 +77,16 @@ export default class ProductInfo extends Component {
         )
         .then(response => {
             if (response.status === 200) {
-                this.setState({ categoryList: response.data })
+                if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS') {
+                    this.setState({ categoryList: response.data.datas })
+                }
             }
         })
         .catch(() => {
-            alert("Fail to load category!")
+            this.setState({
+                isLoadFail: true,
+                messageLoadFail: 'Fail to load category'
+            })
         })
     }
 
@@ -84,6 +95,14 @@ export default class ProductInfo extends Component {
         return (
             <div>
                 <Container>
+                    <Row xs="2">
+                        {
+                            this.state.isLoadFail &&
+                            <Alert color="danger">
+                                {this.state.messageLoadFail}
+                            </Alert>
+                        }
+                    </Row>
                     <Row xs="2">
                         <img src={this.state.image} 
                                 alt={this.state.name}/>
@@ -140,7 +159,7 @@ export default class ProductInfo extends Component {
                                 <span style={{fontSize: '20px', marginRight: '15px'}}>
                                     <b>Category:</b>
                                 </span>
-                                <select style={{height: '40px', width: '100px', fontSize: '20px'}} disabled>
+                                <select style={{height: '40px', width: '130px', fontSize: '20px'}} disabled>
                                     {this.state.categoryList.map((category, index) => {
                                         return(
                                             <option key={index} value={category.id} 

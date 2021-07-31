@@ -36,9 +36,11 @@ export default class Rating extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        point: response.data
-                    })
+                    if(response.data.successCode === 'LOAD_RATING_SUCCESS'){
+                        this.setState({
+                            point: response.data.datas
+                        })
+                    }
                 }
             })
             .catch(err => {
@@ -80,7 +82,9 @@ export default class Rating extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                this.props.onClose();
+                if(response.data.successCode === 'ADD_RATING_SUCCESS'){
+                    this.props.onClose();
+                }
             }
         })
         .catch(err => {
@@ -129,7 +133,9 @@ export default class Rating extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                this.props.onClose();
+                if(response.data.successCode === 'UPDATE_RATING_SUCCESS'){
+                    this.props.onClose();
+                }
             }
         })
         .catch(err => {

@@ -57,8 +57,10 @@ export default class HomePage extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({ productList: response.data.productList });
-                    this.handlePageList(response);
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({ productList: response.data.datas.productList });
+                        this.handlePageList(response);
+                    }
                 }
             })
             .catch(() => {
@@ -77,7 +79,9 @@ export default class HomePage extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({ categoryList: response.data })
+                    if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS') {
+                        this.setState({ categoryList: response.data.datas })
+                    }
                 }
             })
             .catch(() => {
@@ -90,7 +94,7 @@ export default class HomePage extends Component {
 
     handlePageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -109,10 +113,12 @@ export default class HomePage extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList,
-                        isLoadFail: false
-                    })
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList,
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(err => {
@@ -140,13 +146,15 @@ export default class HomePage extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList,
-                        isCategory: true,
-                        isSearch: false,
-                        isLoadFail: false
-                    })
-                    this.handleSearchByCategoryPageList(response);
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList,
+                            isCategory: true,
+                            isSearch: false,
+                            isLoadFail: false
+                        })
+                        this.handleSearchByCategoryPageList(response);
+                    }
                 }
             })
             .catch(err => {
@@ -173,7 +181,7 @@ export default class HomePage extends Component {
 
     handleSearchByCategoryPageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -192,10 +200,12 @@ export default class HomePage extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList,
-                        isLoadFail: false
-                    })
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList,
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(err => {
@@ -230,13 +240,15 @@ export default class HomePage extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList,
-                        isSearch: true,
-                        isCategory: false,
-                        isLoadFail: false
-                    })
-                    this.handleSearchPageList(response);
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList,
+                            isSearch: true,
+                            isCategory: false,
+                            isLoadFail: false
+                        })
+                        this.handleSearchPageList(response);
+                    }
                 }
             })
             .catch(err => {
@@ -260,7 +272,7 @@ export default class HomePage extends Component {
 
     handleSearchPageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -280,10 +292,12 @@ export default class HomePage extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList,
-                        isLoadFail: false
-                    })
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList,
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(err => {
@@ -357,8 +371,10 @@ export default class HomePage extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.toggleAddToCart();
-                    this.setState({ isAddToCartFail: false });
+                    if(response.data.successCode === 'ADD_TO_CART_SUCCESS'){
+                        this.toggleAddToCart();
+                        this.setState({ isAddToCartFail: false });
+                    }
                 }
             })
             .catch(err => {

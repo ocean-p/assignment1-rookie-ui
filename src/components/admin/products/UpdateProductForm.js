@@ -36,7 +36,9 @@ export default class UpdateProductForm extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({ categoryList: response.data })
+                    if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS'){
+                        this.setState({ categoryList: response.data.datas })
+                    }
                 }
             })
             .catch(() => {
@@ -55,14 +57,16 @@ export default class UpdateProductForm extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        name: response.data.name,
-                        price: response.data.price,
-                        quantity: response.data.quantity,
-                        imageUrl: response.data.image,
-                        description: response.data.description,
-                        categoryId: response.data.categoryId
-                    })
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            name: response.data.datas.name,
+                            price: response.data.datas.price,
+                            quantity: response.data.datas.quantity,
+                            imageUrl: response.data.datas.image,
+                            description: response.data.datas.description,
+                            categoryId: response.data.datas.categoryId
+                        })
+                    }
                 }
             })
             .catch(err => {
@@ -131,7 +135,9 @@ export default class UpdateProductForm extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.props.onUpdate();
+                    if(response.data.successCode === 'UPDATE_PRODUCT_SUCCESS'){
+                        this.props.onUpdate();
+                    }
                 }
             })
             .catch(err => {

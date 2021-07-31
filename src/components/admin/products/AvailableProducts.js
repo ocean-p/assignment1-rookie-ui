@@ -47,10 +47,12 @@ export default class AvailableProducts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList
-                    })
-                    this.handlePageList(response);
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList
+                        })
+                        this.handlePageList(response);
+                    }
                 }
             })
             .catch(() => {
@@ -67,7 +69,9 @@ export default class AvailableProducts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({ categoryList: response.data })
+                    if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS'){
+                        this.setState({ categoryList: response.data.datas })
+                    }
                 }
             })
             .catch(() => {
@@ -85,7 +89,7 @@ export default class AvailableProducts extends Component {
 
     handlePageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -102,10 +106,12 @@ export default class AvailableProducts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList,
-                        isLoadFail: false
-                    })
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList,
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(() => {
@@ -116,7 +122,6 @@ export default class AvailableProducts extends Component {
             })
     }
 
-
     handleFind(e) {
         e.preventDefault();
         this.setState({ searchValue: e.target.searchvalue.value })
@@ -125,13 +130,15 @@ export default class AvailableProducts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList,
-                        isSearch: true,
-                        isCategory: false,
-                        isLoadFail: false
-                    })
-                    this.handleSearchPageList(response);
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList,
+                            isSearch: true,
+                            isCategory: false,
+                            isLoadFail: false
+                        })
+                        this.handleSearchPageList(response);
+                    }
                 }
             })
             .catch(err => {
@@ -155,7 +162,7 @@ export default class AvailableProducts extends Component {
 
     handleSearchPageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -173,10 +180,12 @@ export default class AvailableProducts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList, 
-                        isLoadFail: false
-                    })
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList, 
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(err => {
@@ -216,7 +225,7 @@ export default class AvailableProducts extends Component {
 
     handleSearchByCategoryPageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -234,13 +243,15 @@ export default class AvailableProducts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList,
-                        isCategory: true,
-                        isSearch: false,
-                        isLoadFail: false
-                    })
-                    this.handleSearchByCategoryPageList(response);
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList,
+                            isCategory: true,
+                            isSearch: false,
+                            isLoadFail: false
+                        })
+                        this.handleSearchByCategoryPageList(response);
+                    }
                 }
             })
             .catch(err => {
@@ -271,10 +282,12 @@ export default class AvailableProducts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList,
-                        isLoadFail: false
-                    })
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList,
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(err => {
@@ -338,15 +351,17 @@ export default class AvailableProducts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.toggle();
-                    if (this.state.isSearch === true) {
-                        this.changeSearchPage(1);
-                    }
-                    else if (this.state.isCategory === true) {
-                        this.changeSearchByCategoryPage(1);
-                    }
-                    else {
-                        this.loadData();
+                    if(response.data.successCode === 'DELETE_PRODUCT_SUCCESS'){
+                        this.toggle();
+                        if (this.state.isSearch === true) {
+                            this.changeSearchPage(1);
+                        }
+                        else if (this.state.isCategory === true) {
+                            this.changeSearchByCategoryPage(1);
+                        }
+                        else {
+                            this.loadData();
+                        }
                     }
                 }
             })

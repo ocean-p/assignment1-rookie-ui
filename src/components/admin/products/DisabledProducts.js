@@ -32,10 +32,12 @@ export default class DisabledProducts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList
-                    })
-                    this.handlePageList(response);
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList
+                        })
+                        this.handlePageList(response);
+                    }
                 }
             })
             .catch(() => {
@@ -52,7 +54,7 @@ export default class DisabledProducts extends Component {
 
     handlePageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -69,10 +71,12 @@ export default class DisabledProducts extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        productList: response.data.productList,
-                        isLoadFail: true,
-                    })
+                    if(response.data.successCode === 'LOAD_PRODUCT_SUCCESS'){
+                        this.setState({
+                            productList: response.data.datas.productList,
+                            isLoadFail: false,
+                        })
+                    }
                 }
             })
             .catch(() => {
@@ -109,8 +113,10 @@ export default class DisabledProducts extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.toggle();
-                    this.loadData();
+                    if(response.data.successCode === 'RESTORE_PRODUCT_SUCCESS'){
+                        this.toggle();
+                        this.loadData();
+                    }
                 }
             })
             .catch(err => {

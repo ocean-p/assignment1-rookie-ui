@@ -37,10 +37,12 @@ export default class AvailableCategories extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        categoryList: response.data.categories
-                    })
-                    this.handlePageList(response);
+                    if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS'){
+                        this.setState({
+                            categoryList: response.data.datas.categories
+                        })
+                        this.handlePageList(response);
+                    }
                 }
             })
             .catch(() => {
@@ -57,7 +59,7 @@ export default class AvailableCategories extends Component {
 
     handlePageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -74,10 +76,12 @@ export default class AvailableCategories extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        categoryList: response.data.categories,
-                        isLoadFail: false
-                    })
+                    if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS'){
+                        this.setState({
+                            categoryList: response.data.datas.categories,
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(() => {
@@ -96,12 +100,14 @@ export default class AvailableCategories extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        categoryList: response.data.categories,
-                        isSearch: true,
-                        isLoadFail: false
-                    })
-                    this.handleSearchPageList(response);
+                    if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS'){
+                        this.setState({
+                            categoryList: response.data.datas.categories,
+                            isSearch: true,
+                            isLoadFail: false
+                        })
+                        this.handleSearchPageList(response);
+                    }
                 }
             })
             .catch(err => {
@@ -125,7 +131,7 @@ export default class AvailableCategories extends Component {
 
     handleSearchPageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -142,10 +148,12 @@ export default class AvailableCategories extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        categoryList: response.data.categories,
-                        isLoadFail: false
-                    })
+                    if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS'){
+                        this.setState({
+                            categoryList: response.data.datas.categories,
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(err => {
@@ -215,12 +223,14 @@ export default class AvailableCategories extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.toggle();
-                    if (this.state.isSearch === true) {
-                        this.changeSearchPage(1);
-                    }
-                    else {
-                        this.loadData();
+                    if(response.data.successCode === 'DELETE_CATEGORY_SUCCESS'){
+                        this.toggle();
+                        if (this.state.isSearch === true) {
+                            this.changeSearchPage(1);
+                        }
+                        else {
+                            this.loadData();
+                        }
                     }
                 }
             })
@@ -339,7 +349,7 @@ export default class AvailableCategories extends Component {
                 {this.state.isSearch === false &&
                     this.state.pageList.map((page, index) => {
                         return (
-                            <Button key={index} onClick={() => this.changePage(`${page}`)}>
+                            <Button key={index} className="mb-4" onClick={() => this.changePage(`${page}`)}>
                                 {page}
                             </Button>
                         )
@@ -348,7 +358,7 @@ export default class AvailableCategories extends Component {
                 {this.state.isSearch === true &&
                     this.state.searchPageList.map((page, index) => {
                         return (
-                            <Button key={index} onClick={() => this.changeSearchPage(`${page}`)}>
+                            <Button key={index} className="mb-4" onClick={() => this.changeSearchPage(`${page}`)}>
                                 {page}
                             </Button>
                         )

@@ -27,10 +27,12 @@ export default class AddCategoryForm extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                this.setState({
-                    isFail: false,
-                    isSuccess: true,
-                })
+                if(response.data.successCode === 'ADD_CATEGORY_SUCCESS'){
+                    this.setState({
+                        isFail: false,
+                        isSuccess: true,
+                    })
+                }
             }
         })
         .catch(err => {

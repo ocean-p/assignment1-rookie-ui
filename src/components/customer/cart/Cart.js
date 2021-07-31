@@ -53,13 +53,15 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        cartList: response.data.cart,
-                        totalItems: response.data.totalItems,
-                        totalPrice: response.data.totalPrice,
-                        totalQuantity: response.data.totalQuantity
-                    })
-                    this.handlePageList(response);
+                    if(response.data.successCode === 'LOAD_CART_SUCCESS'){
+                        this.setState({
+                            cartList: response.data.datas.cart,
+                            totalItems: response.data.datas.totalItems,
+                            totalPrice: response.data.datas.totalPrice,
+                            totalQuantity: response.data.datas.totalQuantity
+                        })
+                        this.handlePageList(response);
+                    }
                 }
             })
             .catch(err => {
@@ -83,7 +85,7 @@ export default class Cart extends Component {
 
     handlePageList(response) {
         var list = [];
-        for (let i = 0; i < response.data.totalPages; i++) {
+        for (let i = 0; i < response.data.datas.totalPages; i++) {
             list.push(i + 1);
         }
         if (list.length > 1) {
@@ -105,26 +107,30 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        cartList: response.data.cart
-                    })
+                    if(response.data.successCode === 'LOAD_CART_SUCCESS'){
+                        this.setState({
+                            cartList: response.data.datas.cart,
+                            isLoadFail: false
+                        })
+                    }
                 }
             })
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        alert("Account not found");
+                        this.setState({messageLoadFail: 'Account not found.'});
                     }
                     else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                        alert("Account is disabled");
+                        this.setState({messageLoadFail: 'Account is disabled.'});
                     }
                     else {
-                        alert("Error - try again");
+                        this.setState({messageLoadFail: 'Error to load cart.'});
                     }
                 }
                 else {
-                    alert("Fail to load cart!");
+                    this.setState({messageLoadFail: 'Fail to load cart.'});
                 }
+                this.setState({isLoadFail: true});
             })
     }
 
@@ -162,11 +168,13 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({
-                        modalUpdate: !this.state.modalUpdate,
-                        productItem: response.data.product,
-                        quantity: response.data.quantity
-                    })
+                    if (response.data.successCode === 'LOAD_CART_SUCCESS'){
+                        this.setState({
+                            modalUpdate: !this.state.modalUpdate,
+                            productItem: response.data.datas.product,
+                            quantity: response.data.datas.quantity
+                        })
+                    }
                 }
             })
             .catch(err => {
@@ -198,8 +206,10 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.toggleDelete();
-                    this.loadCart();
+                    if(response.data.successCode === 'DELETE_ITEM_SUCCESS'){
+                        this.toggleDelete();
+                        this.loadCart();
+                    }
                 }
             })
             .catch(err => {
@@ -244,8 +254,10 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    this.toggleDeleteAll();
-                    this.loadCart();
+                    if(response.data.successCode === 'DELETE_ITEM_SUCCESS'){
+                        this.toggleDeleteAll();
+                        this.loadCart();
+                    }
                 }
             })
             .catch(err => {
@@ -290,8 +302,10 @@ export default class Cart extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                this.toggleUpdate();
-                this.loadCart();
+                if(response.data.successCode === 'UPDATE_QUANTITY_SUCCESS'){
+                    this.toggleUpdate();
+                    this.loadCart();
+                }
             }
         })
         .catch(err => {

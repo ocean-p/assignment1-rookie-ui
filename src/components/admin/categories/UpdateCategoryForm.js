@@ -28,10 +28,12 @@ export default class UpdateCategoryForm extends Component {
         })
         .then(response => {
             if(response.status === 200){
-                this.setState({
-                    name: response.data.name,
-                    description: response.data.description
-                })
+                if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS'){
+                    this.setState({
+                        name: response.data.datas.name,
+                        description: response.data.datas.description
+                    })
+                }
             }
         })
         .catch(err => {
@@ -67,7 +69,9 @@ export default class UpdateCategoryForm extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                this.props.onUpdate();
+                if(response.data.successCode === 'UPDATE_CATEGORY_SUCCESS'){
+                    this.props.onUpdate();
+                }
             }
         })
         .catch(err => {

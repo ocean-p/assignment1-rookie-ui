@@ -60,7 +60,9 @@ export default class AddProductForm extends Component {
         })
             .then(response => {
                 if (response.status === 200) {
-                    this.setState({ categoryList: response.data })
+                    if(response.data.successCode === 'LOAD_CATEGORY_SUCCESS'){
+                        this.setState({ categoryList: response.data.datas })
+                    }
                 }
             })
             .catch(() => {
@@ -89,10 +91,12 @@ export default class AddProductForm extends Component {
         )
         .then(response => {
             if(response.status === 200){
-                this.setState({
-                    isSuccess: true,
-                    isFail: false
-                })
+                if(response.data.successCode === 'ADD_PRODUCT_SUCCESS'){
+                    this.setState({
+                        isSuccess: true,
+                        isFail: false
+                    })
+                }
             }
         })
         .catch(err => {
