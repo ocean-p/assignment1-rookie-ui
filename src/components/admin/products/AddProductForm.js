@@ -10,7 +10,13 @@ export default class AddProductForm extends Component {
             categoryList: [],
 
             imageSelected: '',
+            imageSelected2: '',
+            imageSelected3: '',
+            imageSelected4: '',
             imageUrl: '',
+            imageUrl2: '',
+            imageUrl3: '',
+            imageUrl4: '',
 
             isFail: false,
             messageFail: '',
@@ -54,6 +60,99 @@ export default class AddProductForm extends Component {
         }
     }
 
+    uploadImage2() {
+        if(this.state.imageSelected2){
+            const formData = new FormData();
+            formData.append("file", this.state.imageSelected2);
+            formData.append("upload_preset", "jk6qdqlp");
+
+            axios.post('https://api.cloudinary.com/v1_1/daboy6hii/image/upload', formData)
+            .then((response) => {
+                if(response.status === 200) {
+                    this.setState({
+                        imageUrl2: response.data.url
+                    })
+                }
+            })
+            .catch(() => {
+                this.setState({
+                    isFail: true,
+                    messageFail: 'Fail to upload image.',
+                    isSuccess: false
+                })
+            })
+        }
+        else{
+            this.setState({
+                isFail: true,
+                messageFail: 'Please select a image before upload.',
+                isSuccess: false
+            })
+        }
+    }
+
+    uploadImage3() {
+        if(this.state.imageSelected3){
+            const formData = new FormData();
+            formData.append("file", this.state.imageSelected3);
+            formData.append("upload_preset", "jk6qdqlp");
+
+            axios.post('https://api.cloudinary.com/v1_1/daboy6hii/image/upload', formData)
+            .then((response) => {
+                if(response.status === 200) {
+                    this.setState({
+                        imageUrl3: response.data.url
+                    })
+                }
+            })
+            .catch(() => {
+                this.setState({
+                    isFail: true,
+                    messageFail: 'Fail to upload image.',
+                    isSuccess: false
+                })
+            })
+        }
+        else{
+            this.setState({
+                isFail: true,
+                messageFail: 'Please select a image before upload.',
+                isSuccess: false
+            })
+        }
+    }
+
+    uploadImage4() {
+        if(this.state.imageSelected4){
+            const formData = new FormData();
+            formData.append("file", this.state.imageSelected4);
+            formData.append("upload_preset", "jk6qdqlp");
+
+            axios.post('https://api.cloudinary.com/v1_1/daboy6hii/image/upload', formData)
+            .then((response) => {
+                if(response.status === 200) {
+                    this.setState({
+                        imageUrl4: response.data.url
+                    })
+                }
+            })
+            .catch(() => {
+                this.setState({
+                    isFail: true,
+                    messageFail: 'Fail to upload image.',
+                    isSuccess: false
+                })
+            })
+        }
+        else{
+            this.setState({
+                isFail: true,
+                messageFail: 'Please select a image before upload.',
+                isSuccess: false
+            })
+        }
+    }
+    
     loadCategory() {
         axios.get('http://localhost:8080/admin/category/list', {
             headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
@@ -83,6 +182,9 @@ export default class AddProductForm extends Component {
                 quantity: e.target.quantity.value,
                 description: e.target.description.value,
                 image: `${this.state.imageUrl}`,
+                image2: `${this.state.imageUrl2}`,
+                image3: `${this.state.imageUrl3}`,
+                image4: `${this.state.imageUrl4}`,
                 categoryId: e.target.category.value
             },
             {
@@ -187,18 +289,6 @@ export default class AddProductForm extends Component {
                                 </FormGroup>
                             </Col>
                         </Row>
-                        <Row xs="2" className="mb-4">
-                            <Col>
-                                <FormGroup>
-                                    <Label for="image" className="mr-sm-2"><b>Image URL</b></Label>
-                                    <Input type="text" name="image" id="image" 
-                                           value={this.state.imageUrl} placeholder="Choose a file and upload" readOnly/>
-                                </FormGroup>
-                                <Input type="file" className="mb-2" accept="image/*"
-                                    onChange={(e) => this.setState({imageSelected: e.target.files[0]})}/>
-                                <Button onClick={() => this.uploadImage()}>Upload</Button>
-                            </Col>
-                        </Row>
                         <Row xs="4" className="mb-4">
                             <Col>
                                 <Label for="category"><b>Category</b></Label>
@@ -213,6 +303,54 @@ export default class AddProductForm extends Component {
                                         )
                                     })}
                                 </select>
+                            </Col>
+                        </Row>
+                        <Row xs="2" className="mb-4">
+                            <Col>
+                                <FormGroup>
+                                    <Label for="image" className="mr-sm-2"><b>Image URL 1 (main)</b></Label>
+                                    <Input type="text" name="image" id="image" 
+                                           value={this.state.imageUrl} placeholder="Choose a file and upload" readOnly/>
+                                </FormGroup>
+                                <Input type="file" className="mb-2" accept="image/*"
+                                    onChange={(e) => this.setState({imageSelected: e.target.files[0]})}/>
+                                <Button onClick={() => this.uploadImage()}>Upload</Button>
+                            </Col>
+                        </Row>
+                        <Row xs="2" className="mb-4">
+                            <Col>
+                                <FormGroup>
+                                    <Label for="image2" className="mr-sm-2"><b>Image URL 2</b></Label>
+                                    <Input type="text" name="image2" id="image2" 
+                                           value={this.state.imageUrl2} placeholder="Choose a file and upload" readOnly/>
+                                </FormGroup>
+                                <Input type="file" className="mb-2" accept="image/*"
+                                    onChange={(e) => this.setState({imageSelected2: e.target.files[0]})}/>
+                                <Button onClick={() => this.uploadImage2()}>Upload</Button>
+                            </Col>
+                        </Row>
+                        <Row xs="2" className="mb-4">
+                            <Col>
+                                <FormGroup>
+                                    <Label for="image3" className="mr-sm-2"><b>Image URL 3</b></Label>
+                                    <Input type="text" name="image3" id="image3" 
+                                           value={this.state.imageUrl3} placeholder="Choose a file and upload" readOnly/>
+                                </FormGroup>
+                                <Input type="file" className="mb-2" accept="image/*"
+                                    onChange={(e) => this.setState({imageSelected3: e.target.files[0]})}/>
+                                <Button onClick={() => this.uploadImage3()}>Upload</Button>
+                            </Col>
+                        </Row>
+                        <Row xs="2" className="mb-4">
+                            <Col>
+                                <FormGroup>
+                                    <Label for="image4" className="mr-sm-2"><b>Image URL 4</b></Label>
+                                    <Input type="text" name="image4" id="image4" 
+                                           value={this.state.imageUrl4} placeholder="Choose a file and upload" readOnly/>
+                                </FormGroup>
+                                <Input type="file" className="mb-2" accept="image/*"
+                                    onChange={(e) => this.setState({imageSelected4: e.target.files[0]})}/>
+                                <Button onClick={() => this.uploadImage4()}>Upload</Button>
                             </Col>
                         </Row>
                         <Row xs="2">

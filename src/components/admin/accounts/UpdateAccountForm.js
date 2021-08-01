@@ -62,7 +62,6 @@ export default class UpdateAccountForm extends Component {
         e.preventDefault();
         axios.put(`http://localhost:8080/admin/account/${this.props.username}`,
             {
-                password: e.target.password.value,
                 fullName: e.target.fullname.value,
                 phone: e.target.phone.value,
                 address: e.target.address.value,
@@ -90,9 +89,6 @@ export default class UpdateAccountForm extends Component {
                         break;
                     case 'ACCOUNT_IS_DISABLED':
                         this.setState({messageUpdateFail: 'Account is disabled.'});
-                        break;
-                    case 'PASSWORD_NOT_CORRECT_FORMAT':
-                        this.setState({messageUpdateFail: 'Password length min:6 - max:20.'});
                         break;
                     case 'FULLNAME_IS_EMPTY':
                         this.setState({messageUpdateFail: 'Full name is empty.'});
@@ -129,14 +125,6 @@ export default class UpdateAccountForm extends Component {
                                     {this.state.messageLoadFail}
                                 </Alert>
                             }
-                        </Row>
-                        <Row xs="3" className="mb-4">
-                            <Col>
-                                <Label for="password">Password</Label>
-                            </Col>
-                            <Col>
-                                <Input type="password" name="password" id="passwordfield"/>
-                            </Col>
                         </Row>
                         <Row xs="3" className="mb-4">
                             <Col>

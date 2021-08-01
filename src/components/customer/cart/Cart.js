@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import {
     Container, Row, Col, Button,
     Card, CardImg, CardBody, CardTitle, CardSubtitle, CardText,
-    Modal, ModalHeader, ModalBody, ModalFooter, Form, Input, Alert
+    Modal, ModalHeader, ModalBody, ModalFooter, Alert
 } from 'reactstrap';
 
 export default class Cart extends Component {
@@ -35,6 +35,8 @@ export default class Cart extends Component {
 
             isLoadFail: false,
             messageLoadFail: '',
+
+            imageDisplay: ''
         };
     }
 
@@ -53,7 +55,7 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    if(response.data.successCode === 'LOAD_CART_SUCCESS'){
+                    if (response.data.successCode === 'LOAD_CART_SUCCESS') {
                         this.setState({
                             cartList: response.data.datas.cart,
                             totalItems: response.data.datas.totalItems,
@@ -67,19 +69,19 @@ export default class Cart extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        this.setState({messageLoadFail: 'Account not found.'});
+                        this.setState({ messageLoadFail: 'Account not found.' });
                     }
                     else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                        this.setState({messageLoadFail: 'Account is disabled.'});
+                        this.setState({ messageLoadFail: 'Account is disabled.' });
                     }
                     else {
-                        this.setState({messageLoadFail: 'Error to load cart.'});
+                        this.setState({ messageLoadFail: 'Error to load cart.' });
                     }
                 }
                 else {
-                    this.setState({messageLoadFail: 'Fail to load cart.'});
+                    this.setState({ messageLoadFail: 'Fail to load cart.' });
                 }
-                this.setState({isLoadFail: true});
+                this.setState({ isLoadFail: true });
             })
     }
 
@@ -107,7 +109,7 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    if(response.data.successCode === 'LOAD_CART_SUCCESS'){
+                    if (response.data.successCode === 'LOAD_CART_SUCCESS') {
                         this.setState({
                             cartList: response.data.datas.cart,
                             isLoadFail: false
@@ -118,19 +120,19 @@ export default class Cart extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        this.setState({messageLoadFail: 'Account not found.'});
+                        this.setState({ messageLoadFail: 'Account not found.' });
                     }
                     else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                        this.setState({messageLoadFail: 'Account is disabled.'});
+                        this.setState({ messageLoadFail: 'Account is disabled.' });
                     }
                     else {
-                        this.setState({messageLoadFail: 'Error to load cart.'});
+                        this.setState({ messageLoadFail: 'Error to load cart.' });
                     }
                 }
                 else {
-                    this.setState({messageLoadFail: 'Fail to load cart.'});
+                    this.setState({ messageLoadFail: 'Fail to load cart.' });
                 }
-                this.setState({isLoadFail: true});
+                this.setState({ isLoadFail: true });
             })
     }
 
@@ -168,11 +170,13 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    if (response.data.successCode === 'LOAD_CART_SUCCESS'){
+                    if (response.data.successCode === 'LOAD_CART_SUCCESS') {
                         this.setState({
                             modalUpdate: !this.state.modalUpdate,
                             productItem: response.data.datas.product,
                             quantity: response.data.datas.quantity
+                        }, () => {
+                            this.setState({ imageDisplay: this.state.productItem.image })
                         })
                     }
                 }
@@ -206,7 +210,7 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    if(response.data.successCode === 'DELETE_ITEM_SUCCESS'){
+                    if (response.data.successCode === 'DELETE_ITEM_SUCCESS') {
                         this.toggleDelete();
                         this.loadCart();
                     }
@@ -215,22 +219,22 @@ export default class Cart extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'CART_NOT_FOUND') {
-                        this.setState({messageDeleteFail: 'Item not found in cart.'});
+                        this.setState({ messageDeleteFail: 'Item not found in cart.' });
                     }
                     else if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        this.setState({messageDeleteFail: 'Account not found.'});
+                        this.setState({ messageDeleteFail: 'Account not found.' });
                     }
                     else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                        this.setState({messageDeleteFail: 'Account is disabled.'});
+                        this.setState({ messageDeleteFail: 'Account is disabled.' });
                     }
                     else {
-                        this.setState({messageDeleteFail: 'Error to delete item in cart'});
+                        this.setState({ messageDeleteFail: 'Error to delete item in cart' });
                     }
                 }
                 else {
-                    this.setState({messageDeleteFail: 'Fail to delete item in cart'});
+                    this.setState({ messageDeleteFail: 'Fail to delete item in cart' });
                 }
-                this.setState({isDeleteFail: true});
+                this.setState({ isDeleteFail: true });
             })
     }
 
@@ -254,7 +258,7 @@ export default class Cart extends Component {
         )
             .then(response => {
                 if (response.status === 200) {
-                    if(response.data.successCode === 'DELETE_ITEM_SUCCESS'){
+                    if (response.data.successCode === 'DELETE_ITEM_SUCCESS') {
                         this.toggleDeleteAll();
                         this.loadCart();
                     }
@@ -263,22 +267,22 @@ export default class Cart extends Component {
             .catch(err => {
                 if (err.response) {
                     if (err.response.data.message === 'ACCOUNT_NOT_FOUND') {
-                        this.setState({messageDeleteFail: 'Account not found.'});
+                        this.setState({ messageDeleteFail: 'Account not found.' });
                     }
                     else if (err.response.data.message === 'ACCOUNT_IS_DISABLED') {
-                        this.setState({messageDeleteFail: 'Account is disabled.'});
+                        this.setState({ messageDeleteFail: 'Account is disabled.' });
                     }
                     else if (err.response.data.message === 'NO_ITEM_IN_CART') {
-                        this.setState({messageDeleteFail: 'No item in cart.'});
+                        this.setState({ messageDeleteFail: 'No item in cart.' });
                     }
                     else {
-                        this.setState({messageDeleteFail: 'Error to delete all items.'});
+                        this.setState({ messageDeleteFail: 'Error to delete all items.' });
                     }
                 }
                 else {
-                    this.setState({messageDeleteFail: 'Fail to delete all items.'});
+                    this.setState({ messageDeleteFail: 'Fail to delete all items.' });
                 }
-                this.setState({isDeleteFail: true});
+                this.setState({ isDeleteFail: true });
             })
     }
 
@@ -288,7 +292,7 @@ export default class Cart extends Component {
 
     handleUpdate(e) {
         e.preventDefault();
-        axios.put('http://localhost:8080/customer/cart/update', 
+        axios.put('http://localhost:8080/customer/cart/update',
             {
                 username: `${localStorage.getItem('name')}`,
                 product: {
@@ -300,47 +304,62 @@ export default class Cart extends Component {
                 headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
             }
         )
-        .then(response => {
-            if(response.status === 200){
-                if(response.data.successCode === 'UPDATE_QUANTITY_SUCCESS'){
-                    this.toggleUpdate();
-                    this.loadCart();
+            .then(response => {
+                if (response.status === 200) {
+                    if (response.data.successCode === 'UPDATE_QUANTITY_SUCCESS') {
+                        this.toggleUpdate();
+                        this.loadCart();
+                    }
                 }
-            }
-        })
-        .catch(err => {
-            if (err.response) {
-                switch (err.response.data.message) {
-                    case 'ACCOUNT_NOT_FOUND':
-                        this.setState({messageUpdateFail: 'Account not found.'});
-                        break;
-                    case 'ACCOUNT_IS_DISABLED':
-                        this.setState({messageUpdateFail: 'Account is disabled.'});
-                        break;
-                    case 'PRODUCT_NOT_FOUND':
-                        this.setState({messageUpdateFail: 'Product not found.'});
-                        break;
-                    case 'PRODUCT_IS_DISABLED':
-                        this.setState({messageUpdateFail: 'Product is disabled.'});
-                        break;
-                    case 'CART_NOT_FOUND':
-                        this.setState({messageUpdateFail: 'Item not found in cart'});
-                        break;
-                    case 'QUANTITY_LESS_THAN_ZERO':
-                        this.setState({messageUpdateFail: 'Quantity must be > 0'});
-                        break;
-                    case 'QUANTITY_GREATER_THAN_AVAILABLE':
-                        this.setState({messageUpdateFail: 'Quantity is greater than available'});
-                        break;
-                    default: 
-                        this.setState({messageUpdateFail: 'Error to update quantity.'});
+            })
+            .catch(err => {
+                if (err.response) {
+                    switch (err.response.data.message) {
+                        case 'ACCOUNT_NOT_FOUND':
+                            this.setState({ messageUpdateFail: 'Account not found.' });
+                            break;
+                        case 'ACCOUNT_IS_DISABLED':
+                            this.setState({ messageUpdateFail: 'Account is disabled.' });
+                            break;
+                        case 'PRODUCT_NOT_FOUND':
+                            this.setState({ messageUpdateFail: 'Product not found.' });
+                            break;
+                        case 'PRODUCT_IS_DISABLED':
+                            this.setState({ messageUpdateFail: 'Product is disabled.' });
+                            break;
+                        case 'CART_NOT_FOUND':
+                            this.setState({ messageUpdateFail: 'Item not found in cart' });
+                            break;
+                        case 'QUANTITY_LESS_THAN_ZERO':
+                            this.setState({ messageUpdateFail: 'Quantity must be > 0' });
+                            break;
+                        case 'QUANTITY_GREATER_THAN_AVAILABLE':
+                            this.setState({ messageUpdateFail: 'Quantity is greater than available' });
+                            break;
+                        default:
+                            this.setState({ messageUpdateFail: 'Error to update quantity.' });
+                    }
                 }
-            }
-            else {
-                this.setState({messageUpdateFail: 'Fail to update quantity.'});
-            }
-            this.setState({isUpdateFail: true});
-        })
+                else {
+                    this.setState({ messageUpdateFail: 'Fail to update quantity.' });
+                }
+                this.setState({ isUpdateFail: true });
+            })
+    }
+
+    changImage(){
+        if(this.state.imageDisplay === this.state.productItem.image){
+            this.setState({imageDisplay: this.state.productItem.image2});
+        }
+        else if(this.state.imageDisplay === this.state.productItem.image2){
+            this.setState({imageDisplay: this.state.productItem.image3});
+        }
+        else if(this.state.imageDisplay === this.state.productItem.image3){
+            this.setState({imageDisplay: this.state.productItem.image4});
+        }
+        else{
+            this.setState({imageDisplay: this.state.productItem.image});
+        }
     }
 
     render() {
@@ -469,67 +488,94 @@ export default class Cart extends Component {
                         Update quantity in cart
                     </ModalHeader>
                     <ModalBody>
-                        <p>
-                            <span style={{ fontSize: '20px', marginRight: '15px' }}>
-                                <b>Code:</b>
-                            </span>
-                            <span style={{ fontSize: '20px' }}>
-                                {this.state.productItem.id}
-                            </span>
-                        </p>
-                        <p>
-                            <span style={{ fontSize: '20px', marginRight: '15px' }}>
-                                <b>Name:</b>
-                            </span>
-                            <span style={{ fontSize: '20px' }}>
-                                {this.state.productItem.name}
-                            </span>
-                        </p>
-                        <p>
-                            <span style={{ fontSize: '20px', marginRight: '15px' }}>
-                                <b>Price:</b>
-                            </span>
-                            <span style={{ fontSize: '20px' }}>
-                                {this.state.productItem.price}$
-                            </span>
-                        </p>
-                        <p>
-                            <span style={{ fontSize: '20px', marginRight: '15px' }}>
-                                <b>Available:</b>
-                            </span>
-                            <span style={{ fontSize: '20px' }}>
-                                {this.state.productItem.quantity}
-                            </span>
-                        </p>
-                        <Container>
-                            <Form onSubmit={(e) => this.handleUpdate(e)}>
-                                <Row className="mb-4">
-                                    <Col xs="3">
-                                        <span style={{ fontSize: '20px', marginRight: '15px' }}>
-                                            <b>Quantity:</b>
-                                        </span>
-                                    </Col>
-                                    <Col xs="3">
-                                        <Input type="number" name="quantity" id="quantity"
-                                            value={this.state.quantity}
-                                            onChange={(e) => this.handleChange(e, "quantity")} />
-                                    </Col>
-                                    <Col xs="3">
-                                        <Button color="warning">
-                                            Update
-                                        </Button>
-                                    </Col>
-                                </Row>
-                                <Row xs="2">
+                        <Row xs="2" className="mb-2">
+                            <Col>
+                                <Button outline color="primary" onClick={() => this.changImage()}>Change image</Button>
+                            </Col>
+                        </Row>
+                        <Row xs="2">
+                            <img src={this.state.imageDisplay}
+                                alt={this.state.productItem.name} />
+                            <Col xs="6">
+                                <p>
+                                    <span style={{ fontSize: '20px', marginRight: '15px' }}>
+                                        <b>Code:</b>
+                                    </span>
+                                    <span style={{ fontSize: '20px' }}>
+                                        {this.state.productItem.id}
+                                    </span>
+                                </p>
+                                <p>
+                                    <span style={{ fontSize: '20px', marginRight: '15px' }}>
+                                        <b>Name:</b>
+                                    </span>
+                                    <span style={{ fontSize: '20px' }}>
+                                        {this.state.productItem.name}
+                                    </span>
+                                </p>
+                                <p>
+                                    <span style={{ fontSize: '20px', marginRight: '15px' }}>
+                                        <b>Price:</b>
+                                    </span>
+                                    <span style={{ fontSize: '20px' }}>
+                                        {this.state.productItem.price}$
+                                    </span>
+                                </p>
+                                <p>
+                                    <span style={{ fontSize: '20px', marginRight: '15px' }}>
+                                        <b>Available:</b>
+                                    </span>
+                                    <span style={{ fontSize: '20px' }}>
+                                        {this.state.productItem.quantity}
+                                    </span>
+                                </p>
+                                <p>
+                                    <span style={{ fontSize: '20px', marginRight: '15px' }}>
+                                        <b>Description:</b>
+                                    </span>
+                                    <span style={{ fontSize: '20px' }}>
+                                        {this.state.productItem.description}
+                                    </span>
+                                </p>
+                                <p>
+                                    <span style={{ fontSize: '20px', marginRight: '15px' }}>
+                                        <b>Point:</b>
+                                    </span>
+                                    <span style={{ fontSize: '20px' }}>
+                                        {this.state.productItem.averageRate}/10
+                                    </span>
+                                </p>
+                                <p>
+                                    <span style={{ fontSize: '20px', marginRight: '15px' }}>
+                                        <b>Publish:</b>
+                                    </span>
+                                    <span style={{ fontSize: '20px' }}>
+                                        {this.state.productItem.createDate}
+                                    </span>
+                                </p>
+                                <p>
+                                    <span style={{ fontSize: '20px', marginRight: '15px' }}>
+                                        <b>Quantity:</b>
+                                    </span>
+                                    <span style={{ fontSize: '20px' }}>
+                                        <form onSubmit={(e) => this.handleUpdate(e)}>
+                                            <input type="number" name="quantity" id="quantity"
+                                                value={this.state.quantity}
+                                                onChange={(e) => this.handleChange(e, "quantity")} />
+                                            <button>Update</button>
+                                        </form>
+                                    </span>
+                                </p>
+                                <p>
                                     {
-                                        this.state.isUpdateFail && 
+                                        this.state.isUpdateFail &&
                                         <Alert color="danger">
                                             {this.state.messageUpdateFail}
                                         </Alert>
                                     }
-                                </Row>
-                            </Form>
-                        </Container>
+                                </p>
+                            </Col>
+                        </Row>
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" onClick={() => this.toggleUpdate()}>Cancel</Button>

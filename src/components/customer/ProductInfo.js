@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { Component } from 'react';
-import { Container, Row, Col, Alert } from 'reactstrap';
+import { Container, Row, Col, Alert, Button } from 'reactstrap';
 
 export default class ProductInfo extends Component {
 
@@ -10,11 +10,16 @@ export default class ProductInfo extends Component {
             name: '',
             price: '',
             image: '',
+            image2: '',
+            image3: '',
+            image4: '',
             quantity: '',
             description: '',
             averageRate: '',
             createDate: '',
             categoryId: '',
+
+            imageDisplay: '',
 
             categoryList: [],
 
@@ -42,10 +47,15 @@ export default class ProductInfo extends Component {
                         price: response.data.datas.price,
                         quantity: response.data.datas.quantity,
                         image: response.data.datas.image,
+                        image2: response.data.datas.image2,
+                        image3: response.data.datas.image3,
+                        image4: response.data.datas.image4,
                         description: response.data.datas.description,
                         categoryId: response.data.datas.categoryId,
                         createDate: response.data.datas.createDate,
                         averageRate: response.data.datas.averageRate
+                    }, () => {
+                        this.setState({imageDisplay: this.state.image});
                     })
                 }
             }
@@ -90,6 +100,20 @@ export default class ProductInfo extends Component {
         })
     }
 
+    changImage() {
+        if(this.state.imageDisplay === this.state.image){
+            this.setState({imageDisplay: this.state.image2});
+        }
+        else if(this.state.imageDisplay === this.state.image2){
+            this.setState({imageDisplay: this.state.image3});
+        }
+        else if(this.state.imageDisplay === this.state.image3){
+            this.setState({imageDisplay: this.state.image4});
+        }
+        else{
+            this.setState({imageDisplay: this.state.image});
+        }
+    }
 
     render() {
         return (
@@ -103,9 +127,15 @@ export default class ProductInfo extends Component {
                             </Alert>
                         }
                     </Row>
+                    <Row xs="2" className="mb-2">
+                        <Col>
+                            <Button outline color="primary" onClick={() => this.changImage()}>Change image</Button>
+                        </Col>
+                    </Row>
                     <Row xs="2">
-                        <img src={this.state.image} 
+                        <img src={this.state.imageDisplay} 
                                 alt={this.state.name}/>
+                                
                         <Col xs="6">
                             <p>
                                 <span style={{fontSize: '20px', marginRight: '15px'}}>
